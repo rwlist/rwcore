@@ -1,0 +1,21 @@
+{{set . "title" "User info page"}}
+{{template "header.html" .}}
+
+<div class="container">
+  <div class="row">
+    <div class="span6">
+      {{template "flash.html" .}}
+    </div>
+    <h3>User info</h3>
+
+    {{with .userID}}
+    <b>Current user id: </b> {{.}}
+    {{else}}
+    You are not logged in!
+    {{end}}
+
+    <pre><code>{{.}}</code></pre>
+  </div>
+</div>
+
+{{template "footer.html" .}}

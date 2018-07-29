@@ -1,0 +1,25 @@
+{{set . "title" "Register page"}}
+{{template "header.html" .}}
+
+
+<div class="container">
+
+    <h1>{{.title}}</h1>
+
+    <form action="/regsiter" method="POST">
+        <label for="login-field">Login: </label><br/>
+        <input type="text" name="login" id="login-field" value="{{.login}}"/><br/>
+
+        <label for="password-field">Password: </label><br/>
+        <input type="password" name="password" id="password-field"/><br/>
+
+        <label for="password-field">Confirm password: </label><br/>
+        <input type="password" name="password-confirm" id="password-confirm"/><br/>
+
+        <input type="submit" value="Login" />
+    </form>
+
+    <a href="/">Back to index</a>
+</div>
+
+{{template "footer.html" .}}

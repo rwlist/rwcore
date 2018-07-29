@@ -1,0 +1,34 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<header class="jumbotron" style="background-color:#A9F16C">
+  <div class="container">
+    <div class="row">
+      <h1>{{.greeting}}</h1>
+      <p></p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="row">
+    <div class="span6">
+      {{template "flash.html" .}}
+    </div>
+    <form action="/App/Hello" method="GET">
+      {{with $field := field "myName" .}}
+          <input type="text" name="{{$field.Name}}" value="{{$field.Flash}}"/><br/>
+      {{end}}
+      <input type="submit" value="Say hello!" />
+    </form>
+    <hr>
+    Go to:
+    <ul>
+      <li><a href="/user">User info</a></li>
+      <li><a href="/login">Login</a></li>
+      <li><a href="/register">Register</a></li>
+    </ul>
+  </div>
+</div>
+
+{{template "footer.html" .}}
