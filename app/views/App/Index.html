@@ -12,9 +12,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="span6">
-      {{template "flash.html" .}}
-    </div>
+    {{template "flash.html" .}}
     <form action="/App/Hello" method="GET">
       {{with $field := field "myName" .}}
           <input type="text" name="{{$field.Name}}" value="{{$field.Flash}}"/><br/>

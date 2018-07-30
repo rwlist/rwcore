@@ -6,17 +6,19 @@
 
     <h1>{{.title}}</h1>
 
-    <form action="/regsiter" method="POST">
+    {{template "flash.html" .}}
+
+    <form action="/register" method="POST">
         <label for="login-field">Login: </label><br/>
-        <input type="text" name="login" id="login-field" value="{{.login}}"/><br/>
+        <input type="text" name="username" id="login-field" value="{{.login}}"/><br/>
 
         <label for="password-field">Password: </label><br/>
         <input type="password" name="password" id="password-field"/><br/>
 
-        <label for="password-field">Confirm password: </label><br/>
-        <input type="password" name="password-confirm" id="password-confirm"/><br/>
+        <label for="password-verify">Verify password: </label><br/>
+        <input type="password" name="verifyPassword" id="password-verify"/><br/>
 
-        <input type="submit" value="Login" />
+        <input type="submit" value="Register" />
     </form>
 
     <a href="/">Back to index</a>

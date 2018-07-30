@@ -9,12 +9,17 @@
     <h3>User info</h3>
 
     {{with .userID}}
-    <b>Current user id: </b> {{.}}
+    <b>Current user id: </b> {{.}}<br/>
+    <form action="/logout" method="POST">
+      <input type="Submit" value="Logout"/>
+    </form>
     {{else}}
     You are not logged in!
     {{end}}
 
     <pre><code>{{.}}</code></pre>
+    <br/>
+    <a href="/">Back to index</a>
   </div>
 </div>
 

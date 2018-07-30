@@ -1,9 +1,11 @@
 package controllers
 
 import (
-	"math/rand"
-
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"github.com/revel/revel"
+	"github.com/rwlist/rwcore/app/models/mongodb"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type App struct {
@@ -42,8 +44,84 @@ func (c App) RegisterPage() revel.Result {
 }
 
 func (c App) AuthorizedUserID() string {
-	if rand.Intn(100) < 30 {
-		return "fake_user_id"
+	return c.Session["userID"]
+}
+
+func (c App) AuthorizeUser(user mongodb.User) {
+	c.Session["username"] = user.Username
+	c.Session["userID"] = user.ID.Hex()
+	c.Flash.Success("Welcome, " + user.Username)
+}
+
+func (c App) DoLogin(username, password string, remember bool) revel.Result {
+	s := mongodb.NewCollectionSession("users")
+	defer s.Close()
+
+	var user mongodb.User
+	err := s.Session.Find(bson.M{"username": username}).One(&user)
+	if err == mgo.ErrNotFound {
+		goto failed
 	}
-	return ""
+	if err != nil {
+		panic(err)
+	}
+	err = bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password))
+	if err == nil {
+		c.AuthorizeUser(user)
+		if remember {
+			c.Session.SetDefaultExpiration()
+		} else {
+			c.Session.SetNoExpiration()
+		}
+		return c.Redirect(App.Index)
+	}
+
+failed:
+	c.Flash.Out["username"] = username
+	c.Flash.Error("Login failed")
+	return c.Redirect(App.LoginPage)
+}
+
+func (c App) DoRegister(username, password, verifyPassword string) revel.Result {
+	c.Validation.Required(verifyPassword)
+	c.Validation.Required(verifyPassword == password).
+		MessageKey("Password does not match")
+
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(App.RegisterPage)
+	}
+
+	passwordHash, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	user := mongodb.User{
+		ID:           bson.NewObjectId(),
+		Username:     username,
+		PasswordHash: passwordHash,
+	}
+
+	s := mongodb.NewCollectionSession("users")
+	defer s.Close()
+
+	err = s.Session.Insert(&user) // TODO: avoid equals usernames
+	if err != nil {
+		panic(err)
+	}
+
+	c.AuthorizeUser(user)
+	return c.Redirect(App.Index)
+}
+
+func (c App) DoLogout() revel.Result {
+	for k := range c.Session {
+		delete(c.Session, k)
+	}
+	return c.Redirect(App.Index)
 }

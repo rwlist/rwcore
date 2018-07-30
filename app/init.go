@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/revel/revel"
+	"github.com/rwlist/rwcore/app/models/mongodb"
 )
 
 var (
@@ -29,6 +30,8 @@ func init() {
 		revel.ActionInvoker,           // Invoke the action.
 	}
 
+	revel.OnAppStart(initMongo)
+
 	// Register startup functions with OnAppStart
 	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
 	// ( order dependent )
@@ -47,6 +50,13 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 	c.Response.Out.Header().Add("Referrer-Policy", "strict-origin-when-cross-origin")
 
 	fc[0](c, fc[1:]) // Execute the next filter stage.
+}
+
+func initMongo() {
+	mongodb.MaxPool = revel.Config.IntDefault("mongo.maxPool", 0)
+	mongodb.PATH, _ = revel.Config.String("mongo.path")
+	mongodb.DBNAME, _ = revel.Config.String("mongo.database")
+	mongodb.CheckAndInitServiceConnection()
 }
 
 //func ExampleStartupScript() {
