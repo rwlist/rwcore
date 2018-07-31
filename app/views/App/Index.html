@@ -13,7 +13,7 @@
 <div class="container">
   <div class="row">
     {{template "flash.html" .}}
-    <form action="/App/Hello" method="GET">
+    <form action="{{url "App.Hello"}}" method="GET">
       {{with $field := field "myName" .}}
           <input type="text" name="{{$field.Name}}" value="{{$field.Flash}}"/><br/>
       {{end}}
@@ -22,9 +22,9 @@
     <hr>
     Go to:
     <ul>
-      <li><a href="/user">User info</a></li>
-      <li><a href="/login">Login</a></li>
-      <li><a href="/register">Register</a></li>
+      <li><a href="{{url "App.UserPage"}}">User info</a></li>
+      <li><a href="{{url "App.LoginPage"}}">Login</a></li>
+      <li><a href="{{url "App.RegisterPage"}}">Register</a></li>
     </ul>
   </div>
 </div>

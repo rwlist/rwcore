@@ -9,12 +9,12 @@
     <h3>User info</h3>
 
     {{with .userID}}
-    <b>Current user id: </b> {{.}}<br/>
-    <form action="/logout" method="POST">
-      <input type="Submit" value="Logout"/>
-    </form>
+      <b>Current user id: </b> {{.}}<br/>
+      <form action="{{url "App.DoLogout"}}" method="POST">
+        <input type="Submit" value="Logout"/>
+      </form>
     {{else}}
-    You are not logged in!
+      You are not logged in!
     {{end}}
 
     <pre><code>{{.}}</code></pre>

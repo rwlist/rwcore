@@ -8,9 +8,9 @@
 
     {{template "flash.html" .}}
 
-    <form action="/login" method="POST">
+    <form action="{{url "App.DoLogin"}}" method="POST">
         <label for="login-field">Login: </label><br/>
-        <input type="text" name="username" id="login-field" value="{{.login}}"/><br/>
+        <input type="text" name="username" id="login-field" value="{{.flash.username}}"/><br/>
 
         <label for="password-field">Password: </label><br/>
         <input type="password" name="password" id="password-field"/><br/>
