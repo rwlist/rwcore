@@ -1,0 +1,208 @@
+{{set . "title" "List view"}}
+{{template "header-react.html" .}}
+
+
+{{template "flash.html" .}}
+
+<div id="root" class="container"></div>
+
+<script type="text/babel">
+    class Element extends React.Component {
+        constructor(props) {
+            super(props);
+        }
+
+        render() {
+            return (
+                <div>
+                    <pre><code>{JSON.stringify(this.props.e, null, 4)}</code></pre>
+                </div>
+            )
+        }
+    }
+
+    class Spoiler extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                hidden: true
+            }
+
+            this.handleClick = this.handleClick.bind(this);
+        }
+
+        handleClick() {
+            this.setState({
+                hidden: !this.state.hidden
+            })
+        }
+
+        render() {
+            return (
+                <div>
+                    <a href="#" onClick={this.handleClick}>{this.props.text}</a>
+                    {!this.state.hidden && this.props.children}
+                </div>
+            )
+        }
+    }
+
+    
+    class FastArea extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                text: ""
+            }
+
+            this.handleClick = this.handleClick.bind(this);
+            this.onChange = this.onChange.bind(this);
+        }
+
+        handleClick() {
+            this.props.handle(this.state.text);
+        }
+
+        onChange(e) {
+            this.setState({ text: e.target.value });
+        }
+
+        render() {
+            return (
+                <div>
+                    <textarea value={this.state.text} onChange={this.onChange}></textarea>
+                    <button onClick={this.handleClick}>Send</button>
+                </div>
+            )
+        }
+    }
+
+    class App extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+
+            }
+
+            this.insertOne = this.insertOne.bind(this);
+            this.insertMany = this.insertMany.bind(this);
+            this.clear = this.clear.bind(this);
+        }
+
+        link() {
+            return '/lists/' + this.props.data.Name;
+        }
+
+        onError(err) {
+            console.error(err);
+        }
+
+        onInfo(info) {
+            console.log(info);
+        }
+
+        insertOne(text) {
+            console.log(text);
+            fetch(this.link() + '/insertOne', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                body: text
+            })
+            .then(resp => resp.json())
+            .then(it => {
+                if (it.Err) {
+                    this.onError(it);
+                } else {
+                    this.onInfo(it);
+                }
+            })
+            .catch(err => this.onError(err))
+        }
+
+        insertMany(text) {
+            console.log(text);
+            fetch(this.link() + '/insertMany', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                body: text
+            })
+            .then(resp => resp.json())
+            .then(it => {
+                if (it.Err) {
+                    this.onError(it);
+                } else {
+                    this.onInfo(it);
+                }
+            })
+            .catch(err => this.onError(err))
+        }
+
+        clear() {
+            console.log("CLEAR ACTION!")
+            fetch(this.link() + '/clear', {
+                method: "POST"
+            })
+            .then(resp => resp.json())
+            .then(it => {
+                if (it.Err) {
+                    this.onError(it);
+                } else {
+                    this.onInfo(it);
+                }
+            })
+            .catch(err => this.onError(err))
+        }
+
+        render() {
+            const backupLink = this.link() + '/backup';
+            return (
+                <div>
+                    <h1>List "{this.props.data.Name}"</h1>
+                    <hr/>
+                    {this.props.data.Elements.map(it => (
+                        <Element e={it} key={it._id} />
+                    ))}
+                    {
+                        this.props.data.Elements.length == 0 
+                        && <div>No elements available!</div>
+                    }
+                    <hr/>
+                    <ul>
+                        <li><Spoiler text="Insert one">
+                            <br/>
+                            <FastArea handle={this.insertOne} />
+                        </Spoiler></li>
+                        <li><Spoiler text="Insert many">
+                            <br/>
+                            <FastArea handle={this.insertMany} />
+                        </Spoiler></li>
+                        <li>
+                            <a href={backupLink}>Backup all</a>
+                        </li>
+                        <li><Spoiler text="Clear">
+                            <br/>
+                            <button onClick={this.clear}>Clear!</button>
+                        </Spoiler></li>
+                    </ul>
+                </div>
+            )
+        }
+    }
+
+    const data = {{raw .jsonData}}
+
+    ReactDOM.render(
+        <App data={data}/>,
+        document.getElementById('root')
+    );
+</script>
+    
+<div class="bottom container">
+    Back to <a href="{{url "Lists.Index"}}">lists page</a>
+</div>
+
+{{template "footer.html" .}}

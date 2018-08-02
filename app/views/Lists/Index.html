@@ -1,0 +1,45 @@
+{{set . "title" "Lists"}}
+{{template "header.html" .}}
+
+
+{{template "flash.html" .}}
+
+<div class="container">
+
+    <h1>Lists</h1>
+
+    {{range $index, $element := .lists}}
+        <a href="/lists/{{$element.Name}}">
+            <div class="list-card">
+                <h3>{{$element.Name}}</h3>
+
+                <b>Elements: </b>{{$element.Size}}
+            </div>
+        </a>
+
+    {{end}}
+
+    <hr/>
+
+    <div style="font-size: 16px;">
+        <b>Total: </b> {{len .lists}}
+    </div>
+    <br/>
+
+    <div>
+        Go to custom name list:
+        <input type="text" id="listName"/>
+        <button id="goToListBtn">Go</button>
+
+        <script>
+            goToListBtn.onclick = () => {
+                window.location.href = '/lists/' + listName.value
+            }
+        </script>
+    </div>
+
+    Back to <a href="{{url "App.Index"}}">index page</a>
+  </div>
+</div>
+
+{{template "footer.html" .}}

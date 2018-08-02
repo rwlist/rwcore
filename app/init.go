@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/revel/revel"
+	"github.com/rwlist/rwcore/app/models/lists"
 	"github.com/rwlist/rwcore/app/models/mongodb"
 )
 
@@ -57,6 +58,9 @@ func initMongo() {
 	mongodb.PATH, _ = revel.Config.String("mongo.path")
 	mongodb.DBNAME, _ = revel.Config.String("mongo.database")
 	mongodb.CheckAndInitServiceConnection()
+
+	lists.DBPATH = mongodb.PATH
+	lists.InitService()
 }
 
 //func ExampleStartupScript() {

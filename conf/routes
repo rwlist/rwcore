@@ -11,11 +11,20 @@ GET     /                                       App.Index
 GET     /App/Hello                              App.Hello
 GET     /user                                   App.UserPage
 
+# Auth
 GET     /login                                  App.LoginPage
 GET     /register                               App.RegisterPage
 POST    /login                                  App.DoLogin
 POST    /register                               App.DoRegister
 POST    /logout                                 App.DoLogout
+
+# Lists
+GET     /lists                                  Lists.Index
+GET     /lists/:name                            Lists.Show
+POST    /lists/:name/insertOne                  Lists.InsertOne
+POST    /lists/:name/insertMany                 Lists.InsertMany
+POST    /lists/:name/clear                      Lists.Clear
+GET     /lists/:name/backup                     Lists.Backup
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
