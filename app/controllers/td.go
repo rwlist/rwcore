@@ -12,22 +12,19 @@ type TD struct {
 	session treedir.Session
 }
 
-func (c TD) Before() (r revel.Result, td TD) {
+func (c *TD) before() revel.Result {
 	userID, ok := c.Session["userID"]
 	if !ok {
 		c.Flash.Error("Use need login to access this page")
-		r = c.Redirect("/login")
-		return
+		return c.Redirect("/login")
 	}
 	c.session = treedir.NewSession(treedir.UserID(bson.ObjectIdHex(userID)))
-	td = c
-	return
+	return nil
 }
 
-func (c TD) Finally() (r revel.Result, td TD) {
+func (c *TD) finally() revel.Result {
 	c.session.Close()
-	td = c
-	return
+	return nil
 }
 
 func (c TD) GetRoot() revel.Result {
@@ -84,4 +81,9 @@ func (c TD) jsonError(err error) revel.Result {
 			"Err": err,
 		},
 	)
+}
+
+func init() {
+	revel.InterceptMethod((*TD).before, revel.BEFORE)
+	revel.InterceptMethod((*TD).finally, revel.FINALLY)
 }

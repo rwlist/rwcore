@@ -20,7 +20,7 @@ POST    /logout                                 App.DoLogout
 
 # Lists
 GET     /lists                                  Lists.Index
-GET     /lists/:name                            Lists.Show
+GET     /lists/:name/data                       Lists.Data
 POST    /lists/:name/insertOne                  Lists.InsertOne
 POST    /lists/:name/insertMany                 Lists.InsertMany
 POST    /lists/:name/clear                      Lists.Clear

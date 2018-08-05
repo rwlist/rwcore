@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
-
 	"github.com/revel/revel"
 	"github.com/rwlist/rwcore/app/models/lists"
 )
@@ -19,17 +17,12 @@ func (c Lists) Index() revel.Result {
 	return c.Render(lists)
 }
 
-func (c Lists) Show(name string) revel.Result {
+func (c Lists) Data(name string) revel.Result {
 	data, err := lists.FullListInfo(name)
 	if err != nil {
-		panic(err)
+		return c.jsonError(err)
 	}
-	json, err := json.Marshal(data)
-	if err != nil {
-		panic(err)
-	}
-	jsonData := string(json)
-	return c.Render(data, jsonData)
+	return c.RenderJSON(data)
 }
 
 func (c Lists) InsertOne(name string) revel.Result {
