@@ -9,4 +9,5 @@ form > input {
     max-width: 400px;
     padding: 10px;
     padding-top: 0;
+    margin: 10px;
 }
