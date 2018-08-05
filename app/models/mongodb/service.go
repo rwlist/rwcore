@@ -18,7 +18,7 @@ func (s *Service) New() error {
 		s.queue <- 1
 	}
 	s.Open = 0
-	s.baseSession, err = mgo.Dial(s.URL)
+	s.baseSession = BaseSession
 	return err
 }
 

@@ -2,6 +2,7 @@ package lists
 
 import (
 	"github.com/globalsign/mgo"
+	"github.com/rwlist/rwcore/app/models/mongodb"
 )
 
 var DBNAME string = "rwlists"
@@ -14,11 +15,7 @@ type Service struct {
 var service Service
 
 func (s *Service) Init() error {
-	session, err := mgo.Dial(DBPATH)
-	if err != nil {
-		return err
-	}
-	s.baseSession = session
+	s.baseSession = mongodb.BaseSession
 	return nil
 }
 

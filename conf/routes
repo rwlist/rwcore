@@ -26,6 +26,13 @@ POST    /lists/:name/insertMany                 Lists.InsertMany
 POST    /lists/:name/clear                      Lists.Clear
 GET     /lists/:name/backup                     Lists.Backup
 
+# TreeDir
+GET     /td/GetRoot                             TD.GetRoot
+POST    /td/CreateDir/:parentID/:name           TD.CreateDir
+POST    /td/CreateFile/:parentID/:name          TD.CreateFile
+GET     /td/ListDirectory/:directoryID          TD.ListDirectory
+POST    /td/Delete/:nodeID                      TD.Delete
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
