@@ -1,0 +1,14 @@
+.Lists__total {
+    font-size: 16px;
+}
+
+.Lists__card {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #a5a5a5;
+    max-width: 400px;
+    padding: 10px;
+    padding-top: 0;
+    margin: 10px;
+    cursor: pointer;
+}

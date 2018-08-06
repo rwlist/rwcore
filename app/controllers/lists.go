@@ -12,9 +12,9 @@ type Lists struct {
 func (c Lists) Index() revel.Result {
 	lists, err := lists.AvailableLists()
 	if err != nil {
-		panic(err)
+		return c.jsonError(err)
 	}
-	return c.Render(lists)
+	return c.RenderJSON(lists)
 }
 
 func (c Lists) Data(name string) revel.Result {

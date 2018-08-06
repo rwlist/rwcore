@@ -1,167 +1,112 @@
 import React, { Component } from 'react';
-import Element from './Element';
-import FastArea from './FastArea';
-import Spoiler from './Spoiler';
+import List from './List';
+import './Lists.css';
 
 class Lists extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
-
-        this.insertOne = this.insertOne.bind(this);
-        this.insertMany = this.insertMany.bind(this);
-        this.clear = this.clear.bind(this);
+        this.state = {
+            status: "loading"
+        };
+        
+        this.onChange = this.onChange.bind(this);
+        this.showList = this.showList.bind(this);
+        this.load = this.load.bind(this);
     }
 
     componentDidMount() {
         this.load();
     }
 
-    onDataReceived(data) {
+    onDataReceived(lists) {
         if (this.state.status !== 'loading') {
             console.error('incorrect status');
             return;
         }
         this.setState({
-            data,
+            lists,
             status: 'loaded'
         })
     }
 
     load() {
+        const handleErr = (err) => {
+            this.onError(err);
+            console.log('error while loading, do it again')
+            this.load();
+        }
         this.setState({ status: 'loading' })
-        fetch('/lists/' + this.props.name + '/data', {
-            method: 'GET'
-        })
+        fetch('/lists', { method: 'GET' })
         .then(resp => resp.json())
         .then(it => {
             if (it.Err) {
-                this.onError(it);
-                console.log('error while loading, do it again')
-                this.load();
+                handleErr(it);
             } else {
                 console.log(it);
                 this.onDataReceived(it);
             }
         })
-        .catch(err => this.onError(err))
+        .catch(handleErr)
     }
 
-    link() {
-        return '/lists/' + this.state.data.Name;
+    onChange(e) {
+        this.setState({ name: e.target.value });
     }
 
-    onError(err) {
-        console.error(err);
-    }
-
-    onInfo(info) {
-        console.log(info);
-    }
-
-    insertOne(text) {
-        console.log(text);
-        fetch(this.link() + '/insertOne', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            },
-            body: text
+    showList(name) {
+        this.setState({
+            name,
+            status: 'list'
         })
-        .then(resp => resp.json())
-        .then(it => {
-            if (it.Err) {
-                this.onError(it);
-            } else {
-                this.onInfo(it);
-            }
-            this.load();
-        })
-        .catch(err => this.onError(err))
-    }
-
-    insertMany(text) {
-        console.log(text);
-        fetch(this.link() + '/insertMany', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            },
-            body: text
-        })
-        .then(resp => resp.json())
-        .then(it => {
-            if (it.Err) {
-                this.onError(it);
-            } else {
-                this.onInfo(it);
-            }
-            this.load();
-        })
-        .catch(err => this.onError(err))
-    }
-
-    clear() {
-        console.log('CLEAR ACTION!')
-        fetch(this.link() + '/clear', {
-            method: 'POST'
-        })
-        .then(resp => resp.json())
-        .then(it => {
-            if (it.Err) {
-                this.onError(it);
-            } else {
-                this.onInfo(it);
-            }
-            this.load();
-        })
-        .catch(err => this.onError(err))
     }
 
     render() {
+        if (this.state.status === 'list') {
+            return (
+                <div>
+                    <List name={this.state.name}/>
+                    Back to <a onClick={this.load}>lists page</a>
+                </div>
+            )
+        }
         let elements;
-        let controls;
-        if (this.state.status === "loaded") {
-            const backupLink = this.link() + '/backup';
-            elements = this.state.data.Elements.map(it => (
-                <Element e={it} key={it._id} />
-            ));
-            if (!elements) {
-                elements = (
-                    <div>No elements available!</div>
-                );
-            }
-            controls = (
-                <ul>
-                    <li><Spoiler text="Insert one">
-                        <br/>
-                        <FastArea handle={this.insertOne} />
-                    </Spoiler></li>
-                    <li><Spoiler text="Insert many">
-                        <br/>
-                        <FastArea handle={this.insertMany} />
-                    </Spoiler></li>
-                    <li>
-                        <a href={backupLink}>Backup all</a>
-                    </li>
-                    <li><Spoiler text="Clear">
-                        <br/>
-                        <button onClick={this.clear}>Clear!</button>
-                    </Spoiler></li>
-                </ul>
-            );
-        } else if (this.state.status === "loading") {
+        if (this.state.status === 'loading') {
             elements = (
-                <h3>Loading...</h3>
-            );
+                <div>
+                    <h2>Loading...</h2>
+                </div>
+            )
+        }
+        if (this.state.status === 'loaded') {
+            elements = (
+                <div>
+                    {this.state.lists.map(it => (
+                        <div className="Lists__card">
+                            <a onClick={() => this.showList(it.Name)} key={it.Name}>
+                                <h3>{it.Name}</h3>
+                            </a>
+                            <b>Elements: </b>{it.Size}
+                        </div>
+                    ))}
+                </div>
+            )
         }
         return (
             <div>
-                <h1>List '{this.props.name}'</h1>
-                <hr/>
+                <h1>Lists</h1>
                 {elements}
                 <hr/>
-                {controls}
+                {this.state.status === 'loaded' &&
+                    <div className="Lists__total">
+                        <b>Total: </b> {this.state.lists.length}
+                    </div>
+                }
+                <br/>
+                <div>
+                    Go to custom name list:
+                    <input type="text" value={this.state.name} onChange={this.onChange}/>
+                    <button onClick={() => this.showList(this.state.name)}>Go</button>
+                </div>
             </div>
         )
     }
