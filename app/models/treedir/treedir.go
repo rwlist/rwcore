@@ -23,11 +23,9 @@ var (
 	ErrRootDirectory     = errors.New("Can't delete root directory")
 )
 
-type UserID bson.ObjectId
-
 type Session struct {
 	dbSession *mgo.Session
-	userID    UserID
+	userID    bson.ObjectId
 
 	Nodes *mgo.Collection
 	Roots *mgo.Collection
@@ -35,7 +33,7 @@ type Session struct {
 
 type Root struct {
 	ID     bson.ObjectId `bson:"_id,omitempty"`
-	UserID UserID        `bson:"userID"`
+	UserID bson.ObjectId `bson:"userID"`
 	RootID bson.ObjectId `bson:"rootID"`
 }
 
@@ -47,7 +45,7 @@ type Node struct {
 	Content  interface{}    `bson:"content"`
 }
 
-func NewSession(userID UserID) Session {
+func NewSession(userID bson.ObjectId) Session {
 	dbSession := mongodb.BaseSession.Clone()
 	s := Session{
 		dbSession,
@@ -71,7 +69,7 @@ func (s Session) GetRoot() (*Root, error) {
 		node := Node{
 			bson.NewObjectId(),
 			nil,
-			"/",
+			"",
 			DIRECTORY,
 			nil,
 		}

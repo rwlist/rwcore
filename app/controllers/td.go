@@ -18,7 +18,7 @@ func (c *TD) before() revel.Result {
 		c.Flash.Error("Use need login to access this page")
 		return c.Redirect("/login")
 	}
-	c.session = treedir.NewSession(treedir.UserID(bson.ObjectIdHex(userID)))
+	c.session = treedir.NewSession(bson.ObjectIdHex(userID))
 	return nil
 }
 
