@@ -81,8 +81,8 @@ class Lists extends Component {
             elements = (
                 <div>
                     {this.state.lists.map(it => (
-                        <div className="Lists__card">
-                            <a onClick={() => this.showList(it.Name)} key={it.Name}>
+                        <div className="Lists__card" key={it.Name}>
+                            <a onClick={() => this.showList(it.Name)}>
                                 <h3>{it.Name}</h3>
                             </a>
                             <b>Elements: </b>{it.Size}
