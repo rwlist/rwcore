@@ -12,6 +12,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
 import File from './File';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
     path: {
@@ -24,21 +25,40 @@ class Files extends Component {
     render() {
         const { classes } = this.props;
         // TODO: material design components
+        const displayed = [];
+        const dir = this.props.path[this.props.path.length - 1];
+        if (dir.ParentID) {
+            displayed.push(['..', {
+                ID: dir.ParentID,
+                Type: 'directory',
+            }]); 
+        }
+        if (this.props.files) {
+            displayed.push(...(this.props.files.map(it => [it.Name, it])));
+        }
         return (
             <Paper>
                 <Typography variant="body2" gutterBottom className={classes.path}>
-                    /home/kek/mda/lol/
+                    {this.props.path.map((it, index) => (
+                        <a onClick={() => {console.log('go to dir', it)}} key={index}>
+                            {it.Name + '/'}
+                        </a>
+                    ))}
                 </Typography>
                 <Divider/>
-                <List>
-                    <File name=".." icon="folder"/>
-                    <File name="Dir1" icon="folder"/>
-                    <File name="Dir2" icon="folder"/>
-                    <File name="File1" icon="file"/>
-                    <File name="File2" icon="file"/>
-                    <File name="File3" icon="file"/>
-                    <File name="FileKek" icon="file"/>
-                </List>
+                {this.props.status === 'loading' && <CircularProgress />}
+                {this.props.status === 'ready' && (
+                    <List>
+                        {displayed.map((it, index) => (
+                            <File
+                                name={it[0]}
+                                type={it[1].Type}
+                                key={it[1].ID}
+                                onOpen={() => this.props.onOpen(it[1])}
+                            />
+                        ))}
+                    </List>
+                )}
             </Paper>
         )
     }

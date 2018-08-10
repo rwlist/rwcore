@@ -32,18 +32,30 @@ func (c TD) GetRoot() revel.Result {
 	if err != nil {
 		return c.jsonError(err)
 	}
-	return c.RenderJSON(root)
-}
-
-func (c TD) CreateDir(parentID string, name string) revel.Result {
-	node, err := c.session.CreateDir(bson.ObjectIdHex(parentID), name)
+	node, err := c.session.GetNode(root.RootID)
 	if err != nil {
 		return c.jsonError(err)
 	}
 	return c.RenderJSON(node)
 }
 
-func (c TD) CreateFile(parentID string, name string) revel.Result {
+func (c TD) CreateDir(parentID string) revel.Result {
+	var name struct {
+		Name string
+	}
+	err := c.Params.BindJSON(&name)
+	if err != nil {
+		return c.jsonError(err)
+	}
+	node, err := c.session.CreateDir(bson.ObjectIdHex(parentID), name.Name)
+	if err != nil {
+		return c.jsonError(err)
+	}
+	return c.RenderJSON(node)
+}
+
+func (c TD) CreateFile(parentID string) revel.Result {
+	name := "TODO"
 	var content interface{}
 	err := c.Params.BindJSON(&content)
 	if err != nil {

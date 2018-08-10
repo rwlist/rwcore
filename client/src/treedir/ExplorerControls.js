@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 import AddIcon from '@material-ui/icons/Add';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -25,13 +26,32 @@ class ExplorerControls extends Component {
         // TODO: material design components
         return (
             <Paper className={classes.paper}>
-                <Button variant="contained" color="primary" className={classes.button}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={() => this.props.onDialog('file')}
+                >
                     <AddIcon/>
                     New file
                 </Button>
-                <Button variant="contained" color="primary" className={classes.button}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={() => this.props.onDialog('directory')}
+                >
                     <AddIcon/>
                     New directory
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={this.props.onRefresh}
+                >
+                    <RefreshIcon/>
+                    Refresh
                 </Button>
             </Paper>
         )

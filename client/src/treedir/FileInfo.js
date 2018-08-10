@@ -28,7 +28,7 @@ class FileInfo extends Component {
             <Paper className={classes.root}>
                 <Grid container spacing={8} direction="column">
                     <Grid item>
-                        <Typography variant="body2" nowrap align="left" className={classes.text}>
+                        <Typography variant="body2" align="left" className={classes.text}>
                             "mda" file
                         </Typography>
                     </Grid>

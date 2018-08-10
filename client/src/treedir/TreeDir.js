@@ -37,18 +37,17 @@ class TreeDir extends Component {
             .then(it => it.json())
             .then(it => {
                 if (it.Err) {
-                    console.error(it);
-                    this.load();
+                    throw it;
                 } else {
                     this.setState({
                         status: 'explorer',
-                        rootID: it.RootID
+                        root: it
                     });
                 }
             })
             .catch(it => {
-                console.error(it);
-                this.load();
+                console.error('error while getting root');
+                throw it;
             })
     }
 
@@ -59,7 +58,7 @@ class TreeDir extends Component {
         if (this.state.status === 'loading') {
             content = <CircularProgress className={classes.progress} />;
         } else {
-            content = <Explorer rootID={this.state.rootID}/>;
+            content = <Explorer root={this.state.root}/>;
         }
         return (
             <div className={classes.root}>

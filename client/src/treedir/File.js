@@ -4,14 +4,15 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
 import FileIcon from '@material-ui/icons/Description';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 class File extends Component {
     render() {
-        let icon = null;
-        if (this.props.icon === 'folder') {
+        let icon = <HelpOutlineIcon />;
+        if (this.props.type === 'directory') {
             icon = <FolderIcon />;
         }
-        if (this.props.icon === 'file') {
+        if (this.props.type === 'file') {
             icon = <FileIcon />;
         }
         if (icon) {
@@ -22,7 +23,7 @@ class File extends Component {
             );
         }
         return (
-            <ListItem button>
+            <ListItem button onDoubleClick={this.props.onOpen}>
                 {icon}
                 <ListItemText
                     primary={this.props.name}

@@ -92,6 +92,15 @@ func (s Session) GetRoot() (*Root, error) {
 	return &root, nil
 }
 
+func (s Session) GetNode(nodeID bson.ObjectId) (*Node, error) {
+	var node Node
+	err := s.Nodes.Find(bson.M{"_id": nodeID}).One(&node)
+	if err != nil {
+		return nil, err
+	}
+	return &node, nil
+}
+
 func (s Session) AssureDirectoryExists(dirID bson.ObjectId) error {
 	var dir Node
 	err := s.Nodes.Find(bson.M{"_id": dirID}).One(&dir)
@@ -144,7 +153,7 @@ func (s Session) ListDirectory(directoryID bson.ObjectId) ([]*Node, error) {
 	if err := s.AssureDirectoryExists(directoryID); err != nil {
 		return nil, err
 	}
-	var list []*Node
+	list := make([]*Node, 0)
 	err := s.Nodes.Find(bson.M{"parentID": directoryID}).All(&list)
 	if err != nil {
 		return nil, err
