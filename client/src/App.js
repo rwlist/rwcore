@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Login from './login/Login';
 
 const styles = {
     root: {
@@ -37,11 +38,14 @@ class App extends Component {
         const { classes } = this.props;
 
         let content;
+        if (this.state.tab === 0) {
+            content = <TreeDir/>
+        }
         if (this.state.tab === 1) {
             content = <Lists/>
         }
-        if (this.state.tab === 0) {
-            content = <TreeDir/>
+        if (this.state.tab === 2) {
+            content = <Login/>
         }
         return (
             <MuiThemeProvider theme={theme}>
@@ -54,6 +58,7 @@ class App extends Component {
                         <Tabs value={this.state.tab} onChange={this.handleTab}>
                             <Tab label="Tree Dir" />
                             <Tab label="Lists" />
+                            <Tab label="Login" />
                         </Tabs>
                     </Toolbar>
                 </AppBar>
