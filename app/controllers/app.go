@@ -53,6 +53,27 @@ func (c App) AuthorizeUser(user mongodb.User) {
 	c.Flash.Success("Welcome, " + user.Username)
 }
 
+type UserStatus struct {
+	Status   string
+	UserID   string
+	Username string
+}
+
+func (c App) CurrentUser() revel.Result {
+	user := c.AuthorizedUserID()
+	var status string
+	if user != "" {
+		status = "User"
+	} else {
+		status = "Unknown"
+	}
+	return c.RenderJSON(UserStatus{
+		Status:   status,
+		UserID:   c.Session["userID"],
+		Username: c.Session["username"],
+	})
+}
+
 func (c App) DoLogin(username, password string, remember bool) revel.Result {
 	s := mongodb.NewCollectionSession("users")
 	defer s.Close()
@@ -63,7 +84,7 @@ func (c App) DoLogin(username, password string, remember bool) revel.Result {
 		goto failed
 	}
 	if err != nil {
-		panic(err)
+		return c.jsonError(err)
 	}
 	err = bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password))
 	if err == nil {
@@ -73,13 +94,16 @@ func (c App) DoLogin(username, password string, remember bool) revel.Result {
 		} else {
 			c.Session.SetNoExpiration()
 		}
-		return c.Redirect(App.Index)
+		return c.RenderJSON(map[string]string{
+			"Result":   "Login successful",
+			"Username": username,
+		})
 	}
 
 failed:
-	c.Flash.Out["username"] = username
-	c.Flash.Error("Login failed")
-	return c.Redirect(App.LoginPage)
+	return c.RenderJSON(map[string]string{
+		"Err": "Login failed",
+	})
 }
 
 func (c App) DoRegister(username, password, verifyPassword string) revel.Result {
@@ -124,4 +148,12 @@ func (c App) DoLogout() revel.Result {
 		delete(c.Session, k)
 	}
 	return c.Redirect(App.Index)
+}
+
+func (c App) jsonError(err error) revel.Result {
+	return c.RenderJSON(
+		map[string]interface{}{
+			"Err": err,
+		},
+	)
 }

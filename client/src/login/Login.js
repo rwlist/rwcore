@@ -15,6 +15,11 @@ const styles = theme => ({
         flexGrow: 1,
         padding: theme.spacing.unit * 2,
     },
+    status: {
+        padding: theme.spacing.unit * 2,
+        margin: theme.spacing.unit * 2,
+        maxWidth: 400,
+    }
 });
 
 class Login extends Component {
@@ -24,7 +29,12 @@ class Login extends Component {
             login: '',
             password: '',
             remember: false,
+            userStatus: "not loaded yet",
         }
+    }
+
+    componentDidMount() {
+        this.updateStatus();
     }
 
     handleChange = name => event => {
@@ -33,7 +43,18 @@ class Login extends Component {
         });
     }
     
-    login() {
+    updateStatus() {
+        fetch('/user/current', { method: 'GET' })
+        .then(it => it.text())
+        .then(it => {
+            this.setState({ userStatus: it })
+        })
+        .catch(it => {
+            console.error(it);
+        })
+    }
+
+    login = () => {
         var formData = new FormData();
         formData.append('username', this.state.login);
         formData.append('password', this.state.password);
@@ -41,7 +62,19 @@ class Login extends Component {
         fetch('/login', {
             method: "POST",
             body: formData,
-        });
+        })
+        .then(it => {
+            if (it.Err) throw it;
+            return it;
+        })
+        .then(it => it.json())
+        .then(it => {
+            console.log(it);
+            this.updateStatus();
+        })
+        .catch(err => {
+            console.error(err);
+        })
     }
 
     render() {
@@ -60,7 +93,7 @@ class Login extends Component {
                         label="Login"
                         type="text"
                         value={this.state.login}
-                        onChange={this.handleChange('name')}
+                        onChange={this.handleChange('login')}
                     />
                     <TextField
                         autoFocus
@@ -72,14 +105,14 @@ class Login extends Component {
                         onChange={this.handleChange('password')}
                     />
                     <FormControlLabel
-                    control={
-                        <Checkbox
-                        checked={this.state.remember}
-                        onChange={this.handleChange('remember')}
-                        value="remember"
-                        />
-                    }
-                    label="Remember"
+                        control={
+                            <Checkbox
+                                checked={this.state.remember}
+                                onChange={this.handleChange('remember')}
+                                value="remember"
+                            />
+                        }
+                        label="Remember"
                     />
                     <Button
                         variant="contained"
@@ -90,6 +123,13 @@ class Login extends Component {
                         Login
                     </Button>
                 </FormGroup>
+                <Paper className={classes.status}>
+                    <pre>
+                        <code>
+                            {this.state.userStatus}
+                        </code>
+                    </pre>
+                </Paper>
             </div>
         )
     }

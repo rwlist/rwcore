@@ -10,6 +10,7 @@ module:testrunner
 GET     /                                       App.Index
 GET     /App/Hello                              App.Hello
 GET     /user                                   App.UserPage
+GET     /user/current                           App.CurrentUser
 
 # Auth
 GET     /login                                  App.LoginPage
