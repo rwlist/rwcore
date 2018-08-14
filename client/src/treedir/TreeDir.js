@@ -47,7 +47,6 @@ class TreeDir extends Component {
             })
             .catch(it => {
                 console.error('error while getting root');
-                throw it;
             })
     }
 

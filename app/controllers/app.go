@@ -12,37 +12,6 @@ type App struct {
 	*revel.Controller
 }
 
-func (c App) Index() revel.Result {
-	greeting := "Aloha World"
-	return c.Render(greeting)
-}
-
-func (c App) Hello(myName string) revel.Result {
-	c.Validation.Required(myName).Message("Your name is required!")
-	c.Validation.MinSize(myName, 3).Message("Your name is not long enough!")
-
-	if c.Validation.HasErrors() {
-		c.Validation.Keep()
-		c.FlashParams()
-		return c.Redirect(App.Index)
-	}
-
-	return c.Render(myName)
-}
-
-func (c App) UserPage() revel.Result {
-	userID := c.AuthorizedUserID()
-	return c.Render(userID)
-}
-
-func (c App) LoginPage() revel.Result {
-	return c.Render()
-}
-
-func (c App) RegisterPage() revel.Result {
-	return c.Render()
-}
-
 func (c App) AuthorizedUserID() string {
 	return c.Session["userID"]
 }
@@ -112,9 +81,12 @@ func (c App) DoRegister(username, password, verifyPassword string) revel.Result 
 		MessageKey("Password does not match")
 
 	if c.Validation.HasErrors() {
-		c.Validation.Keep()
-		c.FlashParams()
-		return c.Redirect(App.RegisterPage)
+		return c.RenderJSON(
+			struct {
+				Err        string
+				Validation *revel.Validation
+			}{"Validation failed", c.Validation},
+		)
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword(
@@ -122,7 +94,7 @@ func (c App) DoRegister(username, password, verifyPassword string) revel.Result 
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		panic(err)
+		return c.jsonError(err)
 	}
 
 	user := mongodb.User{
@@ -136,18 +108,23 @@ func (c App) DoRegister(username, password, verifyPassword string) revel.Result 
 
 	err = s.Session.Insert(&user) // TODO: avoid equals usernames
 	if err != nil {
-		panic(err)
+		return c.jsonError(err)
 	}
 
 	c.AuthorizeUser(user)
-	return c.Redirect(App.Index)
+	return c.RenderJSON(
+		struct {
+			Result   string
+			Username string
+		}{"Registration success", username},
+	)
 }
 
 func (c App) DoLogout() revel.Result {
 	for k := range c.Session {
 		delete(c.Session, k)
 	}
-	return c.Redirect(App.Index)
+	return c.RenderText(`{"ok":1}`)
 }
 
 func (c App) jsonError(err error) revel.Result {
