@@ -23,6 +23,9 @@ const styles = theme => ({
     progress: {
         margin: theme.spacing.unit * 2,
     },
+    button: {
+        marginTop: theme.spacing.unit,
+    }
 });
 
 class UserPage extends Component {
@@ -129,6 +132,12 @@ class UserPage extends Component {
         });
     }
 
+    handleCheckbox = name => event => {
+        this.setState({
+            [name]: event.target.checked,
+        });
+    }
+
     render() {
         const { classes } = this.props;
 
@@ -191,7 +200,7 @@ class UserPage extends Component {
                             control={
                                 <Checkbox
                                     checked={this.state.remember}
-                                    onChange={this.handleChange('remember')}
+                                    onChange={this.handleCheckbox('remember')}
                                     value="remember"
                                 />
                             }
