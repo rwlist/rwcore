@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Lists from './lists/Lists';
-import STree from './treedir/STree';
+import STree from './stree/STree';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from './theme';
 import { MuiThemeProvider } from '@material-ui/core';

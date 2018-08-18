@@ -53,13 +53,13 @@ func NewSession(userID bson.ObjectId) Session {
 		dbSession.DB("rwlist").C("rwlist_nodes"),
 		dbSession.DB("rwlist").C("rwlist_roots"),
 	}
-	log.Println("New treedir session")
+	log.Println("New stree session")
 	return s
 }
 
 func (s Session) Close() {
 	s.dbSession.Close()
-	log.Println("Old treedir session closed")
+	log.Println("Old stree session closed")
 }
 
 func (s Session) GetRoot() (*Root, error) {
