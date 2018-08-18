@@ -24,10 +24,17 @@ const styles = theme => ({
 class FileInfo extends Component {
     render() {
         const { classes } = this.props;
-        return (
-            <Paper className={classes.root}>
-                <Grid container spacing={8} direction="column">
-                    <Grid item>
+
+        let content;
+        if (this.props.file) {
+            content = (
+                <React.Fragment>
+                    <pre>
+                        <code>
+                            {JSON.stringify(this.props.file, null, 4)}
+                        </code>
+                    </pre>
+                    {/* <Grid item>
                         <Typography variant="body2" align="left" className={classes.text}>
                             "mda" file
                         </Typography>
@@ -36,7 +43,20 @@ class FileInfo extends Component {
                         <Typography variant="body2" gutterBottom>
                             Created on August 10, 2018
                         </Typography>
-                    </Grid>
+                    </Grid> */}
+                </React.Fragment>
+            );
+        } else {
+            content = (
+                <Typography variant="caption" gutterBottom align="center">
+                    Select an item to view details.
+                </Typography>
+            );
+        }
+        return (
+            <Paper className={classes.root}>
+                <Grid container spacing={8} direction="column">
+                    {content}
                 </Grid>
             </Paper>
         )

@@ -107,6 +107,10 @@ class Explorer extends Component {
         }
     }
 
+    onSelect = (selected) => {
+        this.setState({ selected })
+    }
+
     render() {
         const { classes } = this.props;
         // TODO: material design components
@@ -126,11 +130,12 @@ class Explorer extends Component {
                         selected={this.state.selected}
                         status={this.state.status}
                         onOpen={this.onOpen}
+                        onSelect={this.onSelect}
                     />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                    <FileInfo/>
+                    <FileInfo file={this.state.selected}/>
                 </Grid>
 
                 <NewDirectoryDialog

@@ -5,9 +5,20 @@ import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
 import FileIcon from '@material-ui/icons/Description';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+    selected: {
+        backgroundColor: "#e8f0fe",
+        color: "#1967d2",
+    }
+});
+
 
 class File extends Component {
     render() {
+        const { classes } = this.props;
+
         let icon = <HelpOutlineIcon />;
         if (this.props.type === 'directory') {
             icon = <FolderIcon />;
@@ -23,7 +34,13 @@ class File extends Component {
             );
         }
         return (
-            <ListItem button onDoubleClick={this.props.onOpen}>
+            <ListItem
+                button
+                disableRipple
+                onDoubleClick={this.props.onOpen}
+                onClick={this.props.onSelect}
+                className={this.props.selected ? classes.selected : ''}
+            >
                 {icon}
                 <ListItemText
                     primary={this.props.name}
@@ -33,4 +50,4 @@ class File extends Component {
     }
 }
 
-export default File;
+export default withStyles(styles)(File);

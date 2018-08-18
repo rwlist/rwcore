@@ -55,6 +55,8 @@ class Files extends Component {
                                 type={it[1].Type}
                                 key={it[1].ID}
                                 onOpen={() => this.props.onOpen(it[1])}
+                                onSelect={() => this.props.onSelect(it[1])}
+                                selected={this.props.selected != null && it[1].ID === this.props.selected.ID}
                             />
                         ))}
                     </List>
