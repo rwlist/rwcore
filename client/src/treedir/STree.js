@@ -20,7 +20,7 @@ const styles = theme => ({
     },
 });
 
-class TreeDir extends Component {
+class STree extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -33,10 +33,10 @@ class TreeDir extends Component {
     }
 
     load() {
-        fetch('/td/GetRoot', {method: 'GET'})
+        fetch('/stree/GetRoot', {method: 'GET'})
             .then(it => it.json())
             .then(it => {
-                if (it.Err) {
+                if (it.Error) {
                     throw it;
                 } else {
                     this.setState({
@@ -74,4 +74,4 @@ class TreeDir extends Component {
     }
 }
 
-export default withStyles(styles)(TreeDir);
+export default withStyles(styles)(STree);

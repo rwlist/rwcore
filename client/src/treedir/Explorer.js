@@ -50,10 +50,10 @@ class Explorer extends Component {
             path: _path,
         });
         const dir = _path[_path.length - 1];
-        fetch('/td/ListDirectory/' + dir.ID, { method: 'GET' })
+        fetch('/stree/ListDirectory/' + dir.ID, { method: 'GET' })
             .then(it => it.json())
             .then(it => {
-                if (it.Err) {
+                if (it.Error) {
                     throw it;
                 }
                 this.onFilesLoaded(dir, it);
@@ -71,7 +71,7 @@ class Explorer extends Component {
     createDirectory = (name) => {
         this.setState({ dialog: null });
         const dir = this.getDir();
-        fetch('/td/CreateDir/' + dir.ID, {
+        fetch('/stree/CreateDir/' + dir.ID, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=utf-8'
@@ -82,7 +82,7 @@ class Explorer extends Component {
         })
             .then(it => it.json())
             .then(it => {
-                if (it.Err) {
+                if (it.Error) {
                     throw it;
                 }
                 console.log('created directory', it);

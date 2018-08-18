@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Lists from './lists/Lists';
-import TreeDir from './treedir/TreeDir';
+import STree from './treedir/STree';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from './theme';
 import { MuiThemeProvider } from '@material-ui/core';
@@ -39,13 +39,13 @@ class App extends Component {
 
         let content;
         if (this.state.tab === 0) {
-            content = <TreeDir/>
+            content = <UserPage/>
         }
         if (this.state.tab === 1) {
             content = <Lists/>
         }
         if (this.state.tab === 2) {
-            content = <UserPage/>
+            content = <STree/>
         }
         return (
             <MuiThemeProvider theme={theme}>
@@ -56,9 +56,9 @@ class App extends Component {
                             rwlist.io
                         </Typography>
                         <Tabs value={this.state.tab} onChange={this.handleTab}>
-                            <Tab label="Tree Dir" />
-                            <Tab label="Lists" />
                             <Tab label="User" />
+                            <Tab label="Lists" />
+                            <Tab label="My STree" />
                         </Tabs>
                     </Toolbar>
                 </AppBar>

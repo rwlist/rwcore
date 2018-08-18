@@ -36,18 +36,19 @@ class List extends Component {
             console.log('error while loading, do it again')
             this.load();
         }
+
         this.setState({ status: 'loading' })
         fetch('/lists/' + this.props.name + '/data', {
             method: 'GET'
         })
         .then(resp => resp.json())
         .then(it => {
-            if (it.Err) {
-                handleErr(it);
-            } else {
-                console.log(it);
-                this.onDataReceived(it);
-            }
+            if (it.Error) throw it;
+            return it;
+        })
+        .then(it => {
+            console.log(it);
+            this.onDataReceived(it);
         })
         .catch(handleErr)
     }
@@ -75,7 +76,11 @@ class List extends Component {
         })
         .then(resp => resp.json())
         .then(it => {
-            if (it.Err) {
+            if (it.Error) throw it;
+            return it;
+        })
+        .then(it => {
+            if (it.Error) {
                 this.onError(it);
             } else {
                 this.onInfo(it);
@@ -96,7 +101,7 @@ class List extends Component {
         })
         .then(resp => resp.json())
         .then(it => {
-            if (it.Err) {
+            if (it.Error) {
                 this.onError(it);
             } else {
                 this.onInfo(it);
@@ -113,7 +118,7 @@ class List extends Component {
         })
         .then(resp => resp.json())
         .then(it => {
-            if (it.Err) {
+            if (it.Error) {
                 this.onError(it);
             } else {
                 this.onInfo(it);

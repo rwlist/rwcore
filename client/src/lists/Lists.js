@@ -39,12 +39,12 @@ class Lists extends Component {
         fetch('/lists', { method: 'GET' })
         .then(resp => resp.json())
         .then(it => {
-            if (it.Err) {
-                handleErr(it);
-            } else {
-                console.log(it);
-                this.onDataReceived(it);
-            }
+            if (it.Error) throw it;
+            return it;
+        })
+        .then(it => {
+            console.log(it);
+            this.onDataReceived(it);
         })
         .catch(handleErr)
     }

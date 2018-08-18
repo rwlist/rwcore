@@ -64,7 +64,7 @@ class UserPage extends Component {
         fetch('/user/current', { method: 'GET' })
         .then(it => it.json())
         .then(it => {
-            if (it.Err) {
+            if (it.Error) {
                 throw it;
             }
             this.onUserUpdate(it);

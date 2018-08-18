@@ -9,11 +9,9 @@ type Database struct {
 }
 
 func (db *Database) Connect() {
-
 	db.s = service.Session()
 	session := *db.s.DB(db.name)
 	db.session = &session
-
 }
 
 func newDBSession(name string) *Database {

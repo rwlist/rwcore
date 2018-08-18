@@ -7,12 +7,12 @@ module:testrunner
 # module:jobs
 
 
-GET     /user/current                           App.CurrentUser
+GET     /user/current                           QAuth.CurrentUser
 
 # Auth
-POST    /login                                  App.DoLogin
-POST    /register                               App.DoRegister
-POST    /logout                                 App.DoLogout
+POST    /login                                  QAuth.DoLogin
+POST    /register                               QAuth.DoRegister
+POST    /logout                                 QAuth.DoLogout
 
 # Lists
 GET     /lists                                  Lists.Index
@@ -23,11 +23,11 @@ POST    /lists/:name/clear                      Lists.Clear
 GET     /lists/:name/backup                     Lists.Backup
 
 # TreeDir
-GET     /td/GetRoot                             TD.GetRoot
-POST    /td/CreateDir/:parentID                 TD.CreateDir
-POST    /td/CreateFile/:parentID                TD.CreateFile
-GET     /td/ListDirectory/:directoryID          TD.ListDirectory
-POST    /td/Delete/:nodeID                      TD.Delete
+GET     /stree/GetRoot                             STree.GetRoot
+POST    /stree/CreateDir/:parentID                 STree.CreateDir
+POST    /stree/CreateFile/:parentID                STree.CreateFile
+GET     /stree/ListDirectory/:directoryID          STree.ListDirectory
+POST    /stree/Delete/:nodeID                      STree.Delete
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

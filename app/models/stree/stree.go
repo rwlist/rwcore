@@ -1,4 +1,4 @@
-package treedir
+package stree
 
 import (
 	"errors"
