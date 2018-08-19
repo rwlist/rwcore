@@ -48,8 +48,7 @@ func (c STree) CreateDir(parentID string) revel.Result {
 	return c.RenderJSON(node)
 }
 
-func (c STree) CreateFile(parentID string) revel.Result {
-	name := "TODO"
+func (c STree) CreateFile(parentID, name string) revel.Result {
 	var content interface{}
 	err := c.Params.BindJSON(&content)
 	if err != nil {

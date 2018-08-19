@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Element from './Element';
 import FastArea from './FastArea';
+import FastInput from './FastInput';
 import Spoiler from './Spoiler';
 
 class List extends Component {
@@ -65,7 +66,7 @@ class List extends Component {
         console.log(info);
     }
 
-    insertOne(text) {
+    insertOne = (text) => {
         console.log(text);
         fetch(this.link() + '/insertOne', {
             method: 'POST',
@@ -90,7 +91,7 @@ class List extends Component {
         .catch(err => this.onError(err))
     }
 
-    insertMany(text) {
+    insertMany = (text) => {
         console.log(text);
         fetch(this.link() + '/insertMany', {
             method: 'POST',
@@ -111,7 +112,7 @@ class List extends Component {
         .catch(err => this.onError(err))
     }
 
-    clear() {
+    clear = () => {
         console.log('CLEAR ACTION!')
         fetch(this.link() + '/clear', {
             method: 'POST'
@@ -124,6 +125,21 @@ class List extends Component {
                 this.onInfo(it);
             }
             this.load();
+        })
+        .catch(err => this.onError(err))
+    }
+
+    copyToDir = (dirID) => {
+        fetch(this.link() + '/copyToDir?dirID=' + dirID, {
+            method: 'POST'
+        })
+        .then(resp => resp.json())
+        .then(it => {
+            if (it.Error) {
+                this.onError(it);
+            } else {
+                this.onInfo(it);
+            }
         })
         .catch(err => this.onError(err))
     }
@@ -157,6 +173,10 @@ class List extends Component {
                     <li><Spoiler text="Clear">
                         <br/>
                         <button onClick={this.clear}>Clear!</button>
+                    </Spoiler></li>
+                    <li><Spoiler text="Copy to directory">
+                        <br/>
+                        <FastInput handle={this.copyToDir} />
                     </Spoiler></li>
                 </ul>
             );

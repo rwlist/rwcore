@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"strconv"
+
+	"github.com/globalsign/mgo/bson"
 	"github.com/revel/revel"
 	"github.com/rwlist/rwcore/app/models/lists"
+	"github.com/rwlist/rwcore/app/models/stree"
 )
 
 type Lists struct {
@@ -71,4 +75,36 @@ func (c Lists) Backup(name string) revel.Result {
 		return c.RenderMyError(err)
 	}
 	return c.RenderJSON(data.Elements)
+}
+
+func (c Lists) CopyToDir(name, dirID string) revel.Result {
+	session := stree.NewSession(bson.ObjectIdHex(c.userID))
+	defer session.Close()
+
+	dirObjectID := bson.ObjectIdHex(dirID)
+
+	resp := struct {
+		Error       interface{} `json:"Error,omitempty"`
+		Status      string
+		CountCopied int
+	}{}
+
+	info, err := lists.FullListInfo(name)
+
+	if err != nil {
+		resp.Error = err
+		goto response
+	}
+
+	for i, v := range info.Elements {
+		_, err := session.CreateFile(dirObjectID, strconv.Itoa(i), v)
+		if err != nil {
+			resp.Error = err
+			goto response
+		}
+		resp.CountCopied++
+	}
+
+response:
+	return c.RenderJSON(resp)
 }

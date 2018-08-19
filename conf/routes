@@ -21,6 +21,7 @@ POST    /lists/:name/insertOne                  Lists.InsertOne
 POST    /lists/:name/insertMany                 Lists.InsertMany
 POST    /lists/:name/clear                      Lists.Clear
 GET     /lists/:name/backup                     Lists.Backup
+POST    /lists/:name/copyToDir                  Lists.CopyToDir   
 
 # TreeDir
 GET     /stree/GetRoot                             STree.GetRoot
