@@ -29,6 +29,7 @@ POST    /stree/CreateDir/:parentID                 STree.CreateDir
 POST    /stree/CreateFile/:parentID                STree.CreateFile
 GET     /stree/ListDirectory/:directoryID          STree.ListDirectory
 POST    /stree/Delete/:nodeID                      STree.Delete
+POST    /stree/Rename/:nodeID                      STree.Rename
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

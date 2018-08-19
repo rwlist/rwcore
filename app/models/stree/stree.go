@@ -180,3 +180,15 @@ func (s Session) Delete(nodeID bson.ObjectId) error {
 	err = s.Nodes.Remove(bson.M{"_id": nodeID})
 	return err
 }
+
+func (s Session) Rename(nodeID bson.ObjectId, newName string) error {
+	var node Node
+	err := s.Nodes.Find(bson.M{"_id": nodeID}).One(&node)
+	if err != nil {
+		return err
+	}
+	if node.ParentID == nil {
+		return ErrRootDirectory
+	}
+	return s.Nodes.UpdateId(nodeID, bson.M{"name": newName})
+}

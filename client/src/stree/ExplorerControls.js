@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import EditIcon from '@material-ui/icons/Edit';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -53,6 +54,18 @@ class ExplorerControls extends Component {
                     <RefreshIcon/>
                     Refresh
                 </Button>
+
+                {this.props.selected !== null && 
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        onClick={() => this.props.onDialog('rename')}
+                    >
+                        <EditIcon/>
+                        Rename
+                    </Button>
+                }
             </Paper>
         )
     }

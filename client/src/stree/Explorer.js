@@ -7,6 +7,7 @@ import Files from './Files';
 import FileInfo from './FileInfo';
 import NewDirectoryDialog from './NewDirectoryDialog';
 import NewFileDialog from './NewFileDialog';
+import RenameDialog from './RenameDialog';
 
 const styles = theme => ({
     root: {
@@ -140,10 +141,7 @@ class Explorer extends Component {
 
     delete = it => {
         fetch('/stree/Delete/' + it.ID, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            }
+            method: 'POST'
         })
         .then(it => it.json())
         .then(it => {
@@ -158,6 +156,24 @@ class Explorer extends Component {
         });
     }
 
+    rename = newName => {
+        this.setState({ dialog: null });
+        fetch('/stree/Rename/' + this.state.selected.ID + '?newName=' + encodeURIComponent(newName), {
+            method: 'POST'
+        })
+        .then(it => it.json())
+        .then(it => {
+            if (it.Error) {
+                throw it;
+            }
+            console.log('rename node', it);
+            this.refresh();
+        })
+        .catch(it => {
+            console.error('error while renaming node', it);
+        });
+    }
+
     render() {
         const { classes } = this.props;
 
@@ -167,6 +183,7 @@ class Explorer extends Component {
                     <ExplorerControls 
                         onDialog={dialog => this.setState({ dialog })}
                         onRefresh={this.refresh}
+                        selected={this.state.selected}
                     />
                 </Grid>
 
@@ -199,6 +216,15 @@ class Explorer extends Component {
                     handleClose={() => this.setState({ dialog: null })}
                     handleAction={this.createFile}
                 />
+
+                <RenameDialog
+                    open={this.state.dialog === 'rename'}
+                    handleClose={() => this.setState({ dialog: null })}
+                    handleAction={this.rename}
+                    selected={this.state.selected}
+                />
+
+
             </Grid>
         )
     }

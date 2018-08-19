@@ -77,6 +77,14 @@ func (c STree) Delete(nodeID string) revel.Result {
 	return c.RenderOK("Successfully deleted")
 }
 
+func (c STree) Rename(nodeID, newName string) revel.Result {
+	err := c.session.Rename(bson.ObjectIdHex(nodeID), newName)
+	if err != nil {
+		return c.RenderMyError(err)
+	}
+	return c.RenderOK("Successfully renamed")
+}
+
 func init() {
 	revel.InterceptMethod((*STree).before, revel.BEFORE)
 	revel.InterceptMethod((*STree).finally, revel.FINALLY)
