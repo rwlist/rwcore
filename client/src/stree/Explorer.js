@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Files from './Files';
 import FileInfo from './FileInfo';
 import NewDirectoryDialog from './NewDirectoryDialog';
+import NewFileDialog from './NewFileDialog';
 
 const styles = theme => ({
     root: {
@@ -26,7 +27,7 @@ class Explorer extends Component {
     }
 
     componentDidMount() {
-        this.fetchFiles();
+        this.refresh();
     }
 
     onFilesLoaded(dir, files) {
@@ -42,14 +43,14 @@ class Explorer extends Component {
     }
 
     fetchFiles = (path) => {
-        const _path = (path ? path : this.state.path);
         this.setState({
             selected: null,
             status: 'loading',
             files: null,
-            path: _path,
+            path,
         });
-        const dir = _path[_path.length - 1];
+        console.log('fetch', path);
+        const dir = path[path.length - 1];
         fetch('/stree/ListDirectory/' + dir.ID, { method: 'GET' })
             .then(it => it.json())
             .then(it => {
@@ -62,6 +63,10 @@ class Explorer extends Component {
                 console.error('error while listing directory');
                 throw it;
             })
+    }
+
+    refresh = () => {
+        this.fetchFiles(this.state.path);
     }
 
     getDir() {
@@ -80,18 +85,40 @@ class Explorer extends Component {
                 Name: name
             })
         })
-            .then(it => it.json())
-            .then(it => {
-                if (it.Error) {
-                    throw it;
-                }
-                console.log('created directory', it);
-                this.fetchFiles();
-            })
-            .catch(it => {
-                console.error('error while creating directory');
+        .then(it => it.json())
+        .then(it => {
+            if (it.Error) {
                 throw it;
-            });
+            }
+            console.log('created directory', it);
+            this.refresh();
+        })
+        .catch(it => {
+            console.error('error while creating directory', it);
+        });
+    }
+
+    createFile = (name, content) => {
+        this.setState({ dialog: null });
+        const dir = this.getDir();
+        fetch('/stree/CreateFile/' + dir.ID + '?name=' + encodeURIComponent(name), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8'
+            },
+            body: content,
+        })
+        .then(it => it.json())
+        .then(it => {
+            if (it.Error) {
+                throw it;
+            }
+            console.log('created file', it);
+            this.refresh();
+        })
+        .catch(it => {
+            console.error('error while creating file', it);
+        });
     }
 
     onOpen = (file) => {
@@ -111,15 +138,35 @@ class Explorer extends Component {
         this.setState({ selected })
     }
 
+    delete = it => {
+        fetch('/stree/Delete/' + it.ID, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8'
+            }
+        })
+        .then(it => it.json())
+        .then(it => {
+            if (it.Error) {
+                throw it;
+            }
+            console.log('delete node', it);
+            this.refresh();
+        })
+        .catch(it => {
+            console.error('error while deleting directory', it);
+        });
+    }
+
     render() {
         const { classes } = this.props;
-        // TODO: material design components
+
         return (
             <Grid container spacing={16}>
                 <Grid item xs={12}>
                     <ExplorerControls 
                         onDialog={dialog => this.setState({ dialog })}
-                        onRefresh={this.fetchFiles}
+                        onRefresh={this.refresh}
                     />
                 </Grid>
 
@@ -135,13 +182,22 @@ class Explorer extends Component {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                    <FileInfo file={this.state.selected}/>
+                    <FileInfo
+                        file={this.state.selected}
+                        onDelete={() => this.delete(this.state.selected)}
+                    />
                 </Grid>
 
                 <NewDirectoryDialog
-                    open={this.state.dialog === 'directory'}
+                    open={this.state.dialog === 'newDirectory'}
                     handleClose={() => this.setState({ dialog: null })}
                     handleAction={this.createDirectory}
+                />
+
+                <NewFileDialog
+                    open={this.state.dialog === 'newFile'}
+                    handleClose={() => this.setState({ dialog: null })}
+                    handleAction={this.createFile}
                 />
             </Grid>
         )

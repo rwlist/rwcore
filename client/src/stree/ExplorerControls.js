@@ -17,7 +17,7 @@ const styles = theme => ({
     },
     button: {
         margin: theme.spacing.unit
-    }
+    },
 });
 
 class ExplorerControls extends Component {
@@ -30,7 +30,7 @@ class ExplorerControls extends Component {
                     variant="contained"
                     color="primary"
                     className={classes.button}
-                    onClick={() => this.props.onDialog('file')}
+                    onClick={() => this.props.onDialog('newFile')}
                 >
                     <AddIcon/>
                     New file
@@ -39,7 +39,7 @@ class ExplorerControls extends Component {
                     variant="contained"
                     color="primary"
                     className={classes.button}
-                    onClick={() => this.props.onDialog('directory')}
+                    onClick={() => this.props.onDialog('newDirectory')}
                 >
                     <AddIcon/>
                     New directory
