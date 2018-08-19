@@ -190,5 +190,6 @@ func (s Session) Rename(nodeID bson.ObjectId, newName string) error {
 	if node.ParentID == nil {
 		return ErrRootDirectory
 	}
-	return s.Nodes.UpdateId(nodeID, bson.M{"name": newName})
+	node.Name = newName
+	return s.Nodes.UpdateId(nodeID, node)
 }
