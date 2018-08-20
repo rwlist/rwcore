@@ -53,16 +53,6 @@ class FileInfo extends Component {
                         <DeleteIcon/>
                         Delete
                     </Button>
-                    {/* <Grid item>
-                        <Typography variant="body2" align="left" className={classes.text}>
-                            "mda" file
-                        </Typography>
-                    </Grid>
-                    <Grid item>
-                        <Typography variant="body2" gutterBottom>
-                            Created on August 10, 2018
-                        </Typography>
-                    </Grid> */}
                 </React.Fragment>
             );
         } else {

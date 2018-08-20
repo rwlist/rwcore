@@ -23,6 +23,7 @@ const styles = theme => ({
 class STree extends Component {
     constructor(props) {
         super(props);
+        this.fetcher = props.fetcher;
         this.state = {
             status: 'loading'
         }
@@ -33,20 +34,13 @@ class STree extends Component {
     }
 
     load() {
-        fetch('/stree/GetRoot', {method: 'GET'})
-            .then(it => it.json())
+        this.setState({ status: 'loading' });
+        this.fetcher.get('/stree/GetRoot')
             .then(it => {
-                if (it.Error) {
-                    throw it;
-                } else {
-                    this.setState({
-                        status: 'explorer',
-                        root: it
-                    });
-                }
-            })
-            .catch(it => {
-                console.error('error while getting root');
+                this.setState({
+                    status: 'explorer',
+                    root: it,
+                });
             })
     }
 
@@ -57,7 +51,7 @@ class STree extends Component {
         if (this.state.status === 'loading') {
             content = <CircularProgress className={classes.progress} />;
         } else {
-            content = <Explorer root={this.state.root}/>;
+            content = <Explorer root={this.state.root} fetcher={this.fetcher}/>;
         }
         return (
             <div className={classes.root}>

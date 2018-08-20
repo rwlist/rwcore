@@ -11,6 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import UserPage from './user/UserPage';
+import Fetcher from './util/Fetcher';
 
 const styles = {
     root: {
@@ -27,7 +28,8 @@ class App extends Component {
         super(props);
         this.state = {
             tab: 0,
-        }
+        };
+        this.fetcher = new Fetcher();
     }
 
     handleTab = (event, tab) => {
@@ -45,7 +47,7 @@ class App extends Component {
             content = <Lists/>
         }
         if (this.state.tab === 2) {
-            content = <STree/>
+            content = <STree fetcher={this.fetcher}/>
         }
         return (
             <MuiThemeProvider theme={theme}>

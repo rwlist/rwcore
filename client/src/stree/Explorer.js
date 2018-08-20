@@ -18,6 +18,7 @@ const styles = theme => ({
 class Explorer extends Component {
     constructor(props) {
         super(props);
+        this.fetcher = props.fetcher;
         this.state = {
             path: [props.root],
             selected: null,
@@ -29,6 +30,10 @@ class Explorer extends Component {
 
     componentDidMount() {
         this.refresh();
+    }
+
+    refresh = () => {
+        this.fetchFiles(this.state.path);
     }
 
     onFilesLoaded(dir, files) {
@@ -50,24 +55,9 @@ class Explorer extends Component {
             files: null,
             path,
         });
-        console.log('fetch', path);
         const dir = path[path.length - 1];
-        fetch('/stree/ListDirectory/' + dir.ID, { method: 'GET' })
-            .then(it => it.json())
-            .then(it => {
-                if (it.Error) {
-                    throw it;
-                }
-                this.onFilesLoaded(dir, it);
-            })
-            .catch(it => {
-                console.error('error while listing directory');
-                throw it;
-            })
-    }
-
-    refresh = () => {
-        this.fetchFiles(this.state.path);
+        this.fetcher.get('/stree/ListDirectory/' + dir.ID)
+            .then(it => this.onFilesLoaded(dir, it));
     }
 
     getDir() {
@@ -77,49 +67,18 @@ class Explorer extends Component {
     createDirectory = (name) => {
         this.setState({ dialog: null });
         const dir = this.getDir();
-        fetch('/stree/CreateDir/' + dir.ID, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            },
-            body: JSON.stringify({
-                Name: name
-            })
-        })
-        .then(it => it.json())
-        .then(it => {
-            if (it.Error) {
-                throw it;
-            }
-            console.log('created directory', it);
-            this.refresh();
-        })
-        .catch(it => {
-            console.error('error while creating directory', it);
-        });
+        this.fetcher.postJSON('/stree/CreateDir/' + dir.ID, {Name: name}, true)
+            .then(() => this.refresh());
     }
 
     createFile = (name, content) => {
         this.setState({ dialog: null });
         const dir = this.getDir();
-        fetch('/stree/CreateFile/' + dir.ID + '?name=' + encodeURIComponent(name), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            },
-            body: content,
-        })
-        .then(it => it.json())
-        .then(it => {
-            if (it.Error) {
-                throw it;
-            }
-            console.log('created file', it);
-            this.refresh();
-        })
-        .catch(it => {
-            console.error('error while creating file', it);
-        });
+        this.fetcher.postJSON(
+            '/stree/CreateFile/' + dir.ID + '?name=' + encodeURIComponent(name),
+            content
+        )
+            .then(() => this.refresh());
     }
 
     onOpen = (file) => {
@@ -140,38 +99,19 @@ class Explorer extends Component {
     }
 
     delete = it => {
-        fetch('/stree/Delete/' + it.ID, {
-            method: 'POST'
-        })
-        .then(it => it.json())
-        .then(it => {
-            if (it.Error) {
-                throw it;
-            }
-            console.log('delete node', it);
-            this.refresh();
-        })
-        .catch(it => {
-            console.error('error while deleting directory', it);
-        });
+        this.fetcher.postJSON('/stree/Delete/' + it.ID)
+            .then(() => this.refresh());
     }
 
     rename = newName => {
         this.setState({ dialog: null });
+        this.fetcher.postJSON(
+            '/stree/Rename/' + this.state.selected.ID + '?newName=' + encodeURIComponent(newName)
+        )
         fetch('/stree/Rename/' + this.state.selected.ID + '?newName=' + encodeURIComponent(newName), {
             method: 'POST'
         })
-        .then(it => it.json())
-        .then(it => {
-            if (it.Error) {
-                throw it;
-            }
-            console.log('rename node', it);
-            this.refresh();
-        })
-        .catch(it => {
-            console.error('error while renaming node', it);
-        });
+            .then(() => this.refresh());
     }
 
     render() {
@@ -223,7 +163,6 @@ class Explorer extends Component {
                     handleAction={this.rename}
                     selected={this.state.selected}
                 />
-
 
             </Grid>
         )
