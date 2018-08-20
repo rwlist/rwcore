@@ -3,6 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
+import InvalidRacer from '@material-ui/icons/AccessibleForward';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -27,6 +28,14 @@ class ExplorerControls extends Component {
         // TODO: material design components
         return (
             <Paper className={classes.paper}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={this.props.onMultiselect}
+                >
+                    <InvalidRacer/>
+                </Button>
                 <Button
                     variant="contained"
                     color="primary"

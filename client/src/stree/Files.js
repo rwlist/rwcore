@@ -17,17 +17,29 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 const styles = theme => ({
     path: {
         padding: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1
+        paddingBottom: theme.spacing.unit * 1,
+    },
+    list: {
+        maxHeight: 600,
+        overflow: 'auto',
     }
 });
 
 class Files extends Component {
+    isSelected(it) {
+        if (!it) {
+            return false;
+        }
+        const selected = this.props.multiselected;
+        return selected[it.ID] !== undefined;
+    }
+
     render() {
-        const { classes } = this.props;
+        const { classes, status } = this.props;
         // TODO: material design components
         const displayed = [];
         const dir = this.props.path[this.props.path.length - 1];
-        if (dir.ParentID) {
+        if (dir.ParentID && status !== 'multiselect') {
             displayed.push(['..', {
                 ID: dir.ParentID,
                 Type: 'directory',
@@ -36,6 +48,41 @@ class Files extends Component {
         if (this.props.files) {
             displayed.push(...(this.props.files.map(it => [it.Name, it])));
         }
+
+        let listContent;
+        if (status === 'ready') {
+            listContent = (
+                <List>
+                    {displayed.map((it, index) => (
+                        <File
+                            name={it[0]}
+                            type={it[1].Type}
+                            key={it[1].ID}
+                            onOpen={() => this.props.onOpen(it[1])}
+                            onSelect={() => this.props.onSelect(it[1])}
+                            selected={this.props.selected != null && it[1].ID === this.props.selected.ID}
+                        />
+                    ))}
+                </List>
+            );
+        }
+        if (status === 'multiselect') {
+            listContent = (
+                <List>
+                    {displayed.map((it, index) => (
+                        <File
+                            name={it[0]}
+                            type={it[1].Type}
+                            key={it[1].ID}
+                            onSelect={() => this.props.onSelect(it[1])}
+                            selected={this.isSelected(it[1])}
+                            multiselect
+                        />
+                    ))}
+                </List>
+            );
+        }
+
         return (
             <Paper>
                 <Typography variant="body2" gutterBottom className={classes.path}>
@@ -46,21 +93,10 @@ class Files extends Component {
                     ))}
                 </Typography>
                 <Divider/>
-                {this.props.status === 'loading' && <CircularProgress />}
-                {this.props.status === 'ready' && (
-                    <List>
-                        {displayed.map((it, index) => (
-                            <File
-                                name={it[0]}
-                                type={it[1].Type}
-                                key={it[1].ID}
-                                onOpen={() => this.props.onOpen(it[1])}
-                                onSelect={() => this.props.onSelect(it[1])}
-                                selected={this.props.selected != null && it[1].ID === this.props.selected.ID}
-                            />
-                        ))}
-                    </List>
-                )}
+                {status === 'loading' && <CircularProgress />}
+                <List className={classes.list}>
+                    {listContent}
+                </List>
             </Paper>
         )
     }

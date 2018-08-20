@@ -6,6 +6,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FileIcon from '@material-ui/icons/Description';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { withStyles } from '@material-ui/core/styles';
+import Checkbox from '@material-ui/core/Checkbox';
 
 const styles = theme => ({
     selected: {
@@ -33,20 +34,40 @@ class File extends Component {
                 </ListItemIcon>
             );
         }
-        return (
-            <ListItem
-                button
-                disableRipple
-                onDoubleClick={this.props.onOpen}
-                onClick={this.props.onSelect}
-                className={this.props.selected ? classes.selected : ''}
-            >
-                {icon}
-                <ListItemText
-                    primary={this.props.name}
-                />
-            </ListItem>
-        )
+        if (this.props.multiselect) {
+            return (
+                <ListItem
+                    button
+                    disableRipple
+                    onClick={this.props.onSelect}
+                >
+                    <Checkbox
+                        checked={this.props.selected}
+                        tabIndex={-1}
+                        disableRipple
+                    />
+                    {icon}
+                    <ListItemText
+                        primary={this.props.name}
+                    />
+                </ListItem>
+            )
+        } else {
+            return (
+                <ListItem
+                    button
+                    disableRipple
+                    onDoubleClick={this.props.onOpen}
+                    onClick={this.props.onSelect}
+                    className={this.props.selected ? classes.selected : ''}
+                >
+                    {icon}
+                    <ListItemText
+                        primary={this.props.name}
+                    />
+                </ListItem>
+            )
+        }
     }
 }
 
