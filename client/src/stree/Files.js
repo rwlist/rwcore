@@ -13,6 +13,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
 import File from './File';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ExplorerAPI from './ExplorerAPI';
 
 const styles = theme => ({
     path: {
@@ -26,14 +27,6 @@ const styles = theme => ({
 });
 
 class Files extends Component {
-    isSelected(it) {
-        if (!it) {
-            return false;
-        }
-        const selected = this.props.multiselected;
-        return selected[it.ID] !== undefined;
-    }
-
     render() {
         const { classes, status } = this.props;
         // TODO: material design components
@@ -75,7 +68,7 @@ class Files extends Component {
                             type={it[1].Type}
                             key={it[1].ID}
                             onSelect={() => this.props.onSelect(it[1])}
-                            selected={this.isSelected(it[1])}
+                            selected={ExplorerAPI.isSelected(it[1], this.props.selected)}
                             multiselect
                         />
                     ))}

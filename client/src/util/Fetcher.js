@@ -32,6 +32,10 @@ export default class Fetcher {
         return this.fetch(url, init);
     }
 
+    post(url, body) {
+        return this.fetch(url, { method: 'POST', body });
+    }
+
     get(url) {
         return this.fetch(url, { method: 'GET' });
     }

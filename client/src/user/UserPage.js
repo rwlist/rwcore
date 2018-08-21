@@ -3,12 +3,9 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import Login from './Login';
+import Register from './Register';
 
 const styles = theme => ({
     root: {
@@ -23,19 +20,18 @@ const styles = theme => ({
     progress: {
         margin: theme.spacing.unit * 2,
     },
-    button: {
-        marginTop: theme.spacing.unit,
-    }
 });
 
 class UserPage extends Component {
     constructor(props) {
         super(props);
+        this.fetcher = props.fetcher; // TODO
         this.state = {
             login: '',
             password: '',
             verifyPassword: '',
             remember: false,
+
             status: 'loading',
             page: 'login',
         }
@@ -45,7 +41,7 @@ class UserPage extends Component {
         this.updateUser();
     }
     
-    onUserUpdate(user) {
+    onUserUpdate = (user) => {
         if (user.Status === "User") {
             this.setState({
                 status: 'logged-in',
@@ -59,19 +55,10 @@ class UserPage extends Component {
         }
     }
 
-    updateUser() {
+    updateUser = () => {
         this.setState({ status: 'loading' })
-        fetch('/user/current', { method: 'GET' })
-        .then(it => it.json())
-        .then(it => {
-            if (it.Error) {
-                throw it;
-            }
-            this.onUserUpdate(it);
-        })
-        .catch(it => {
-            console.error(it);
-        })
+        this.fetcher.get('user/current')
+            .then(this.onUserUpdate);
     }
 
     login = () => {
@@ -79,18 +66,8 @@ class UserPage extends Component {
         formData.append('username', this.state.login);
         formData.append('password', this.state.password);
         formData.append('remember', this.state.remember);
-        fetch('/login', {
-            method: "POST",
-            body: formData,
-        })
-        .then(it => it.json())
-        .then(it => {
-            console.log(it);
-            this.updateUser();
-        })
-        .catch(err => {
-            console.error(err);
-        })
+        this.fetcher.post('/login', formData)
+            .then(this.updateUser);
     }
 
     register = () => {
@@ -98,32 +75,13 @@ class UserPage extends Component {
         formData.append('username', this.state.login);
         formData.append('password', this.state.password);
         formData.append('verifyPassword', this.state.verifyPassword);
-        fetch('/register', {
-            method: "POST",
-            body: formData,
-        })
-        .then(it => it.json())
-        .then(it => {
-            console.log(it);
-            this.updateUser();
-        })
-        .catch(err => {
-            console.error(err);
-        })
+        this.fetcher.post('/register', formData)
+            .then(this.updateUser);
     }
 
     logout = () => {
-        fetch('/logout', {
-            method: "POST",
-        })
-        .then(it => it.json())
-        .then(it => {
-            console.log(it);
-            this.updateUser();
-        })
-        .catch(err => {
-            console.error(err);
-        })
+        this.fetcher.post('/logout')
+            .then(this.updateUser);
     }
 
     handleChange = name => event => {
@@ -140,6 +98,8 @@ class UserPage extends Component {
 
     render() {
         const { classes } = this.props;
+        const { handleChange, handleCheckbox } = this;
+        const { login, password, verifyPassword, remember } = this.state;
 
         if (this.state.status === 'loading') {
             return (
@@ -159,12 +119,7 @@ class UserPage extends Component {
                             </code>
                         </pre>
                     </Paper>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={this.logout}
-                    >
+                    <Button variant="contained" color="primary" onClick={this.logout}>
                         Logout
                     </Button>
                 </div>
@@ -173,111 +128,35 @@ class UserPage extends Component {
 
         if (this.state.page === 'login') {
             return (
-                <div className={classes.root}>
-                    <FormGroup>
-                        <Typography variant="display3" gutterBottom>
-                            Login page
-                        </Typography>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="login"
-                            label="Login"
-                            type="text"
-                            value={this.state.login}
-                            onChange={this.handleChange('login')}
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="password"
-                            label="Password"
-                            type="password"
-                            value={this.state.password}
-                            onChange={this.handleChange('password')}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.remember}
-                                    onChange={this.handleCheckbox('remember')}
-                                    value="remember"
-                                />
-                            }
-                            label="Remember"
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                            onClick={this.login}
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                            onClick={() => this.setState({ page: 'register' })}
-                        >
-                            I'd rather create new account
-                        </Button>
-                    </FormGroup>
-                </div>
+                <Login
+                    values={{
+                        login,
+                        password,
+                        remember,
+                    }}
+                    handlers={{
+                        handleChange,
+                        handleCheckbox,
+                        login: this.login,
+                        wantRegister: () => this.setState({ page: 'register' }),
+                    }}
+                />
             )
         }
         if (this.state.page === 'register') {
             return (
-                <div className={classes.root}>
-                    <FormGroup>
-                        <Typography variant="display3" gutterBottom>
-                            Register page
-                        </Typography>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="login"
-                            label="Login"
-                            type="text"
-                            value={this.state.login}
-                            onChange={this.handleChange('login')}
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="password"
-                            label="Password"
-                            type="password"
-                            value={this.state.password}
-                            onChange={this.handleChange('password')}
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="verifyPassword"
-                            label="Verify Password"
-                            type="password"
-                            value={this.state.verifyPassword}
-                            onChange={this.handleChange('verifyPassword')}
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                            onClick={this.register}
-                        >
-                            Register
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                            onClick={() => this.setState({ page: 'login' })}
-                        >
-                            I'd rather log into existing account
-                        </Button>
-                    </FormGroup>
-                </div>
+                <Register
+                    values={{
+                        login,
+                        password,
+                        verifyPassword,
+                    }}
+                    handlers={{
+                        handleChange,
+                        register: this.register,
+                        wantLogin: () => this.setState({ page: 'login' }),
+                    }}
+                />
             )
         }
     }

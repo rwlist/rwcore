@@ -5,27 +5,25 @@ import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 import Files from './Files';
 import FileInfo from './FileInfo';
-import NewDirectoryDialog from './NewDirectoryDialog';
-import NewFileDialog from './NewFileDialog';
-import RenameDialog from './RenameDialog';
-import Multiselection from './Multiselection';
-import MultiselectionTools from './MultiselectionTools';
-
-const styles = theme => ({
-    root: {
-        flexGrow: 1
-    }
-});
+import NewDirectoryDialog from './dialog/NewDirectory';
+import NewFileDialog from './dialog/NewFile';
+import RenameDialog from './dialog/Rename';
+import Multiselection from './multi/Multiselection';
+import MultiselectionTools from './multi/MultiselectionTools';
+import ExplorerAPI from './ExplorerAPI';
 
 class Explorer extends Component {
     constructor(props) {
         super(props);
         this.fetcher = props.fetcher;
+        this.api = new ExplorerAPI(this.fetcher);
+
         this.state = {
-            path: [props.root],
+            path: [props.root], // TODO: derived state
             selected: null,
-            status: 'loading',
             files: null,
+
+            status: 'loading',
             dialog: null,
         };
     }
@@ -38,18 +36,6 @@ class Explorer extends Component {
         this.fetchFiles(this.state.path);
     }
 
-    onFilesLoaded(dir, files) {
-        if (dir.ID !== this.getDir().ID) {
-            console.error('mismatch', dir, this.getDir());
-            return;
-        }
-        this.setState({
-            selected: null,
-            status: 'ready',
-            files,
-        });
-    }
-
     fetchFiles = (path) => {
         this.setState({
             selected: null,
@@ -57,28 +43,30 @@ class Explorer extends Component {
             files: null,
             path,
         });
-        const dir = path[path.length - 1];
-        this.fetcher.get('/stree/ListDirectory/' + dir.ID)
-            .then(it => this.onFilesLoaded(dir, it));
-    }
-
-    getDir() {
-        return this.state.path[this.state.path.length - 1];
+        this.api.ListDirectory(ExplorerAPI.getDir(path))
+            .then(files => this.setState({
+                selected: null,
+                status: 'ready',
+                files,
+                path,
+            }));
     }
 
     createDirectory = (name) => {
         this.setState({ dialog: null });
-        const dir = this.getDir();
-        this.fetcher.postJSON('/stree/CreateDir/' + dir.ID, {Name: name}, true)
-            .then(() => this.refresh());
+        this.api.CreateDir(
+            ExplorerAPI.getDir(this.state.path),
+            name
+        )
+            .then(this.refresh);
     }
 
-    createFile = (name, content) => {
+    createFile = (name, file) => {
         this.setState({ dialog: null });
-        const dir = this.getDir();
-        this.fetcher.postJSON(
-            '/stree/CreateFile/' + dir.ID + '?name=' + encodeURIComponent(name),
-            content
+        this.api.CreateFile(
+            ExplorerAPI.getDir(this.state.path),
+            name,
+            file,
         )
             .then(() => this.refresh());
     }
@@ -88,80 +76,62 @@ class Explorer extends Component {
             console.error('open incorrect file', file);
             return;
         }
-        const dir = this.getDir();
-        if (file.ID === dir.ParentID) {
-            this.fetchFiles(this.state.path.slice(0, -1));
-        } else {
-            this.fetchFiles(this.state.path.concat([file]));
-        }
+        this.fetchFiles(
+            ExplorerAPI.go(this.state.path, file)
+        );
     }
 
-    onSelect = (selected) => {
-        console.log('onSelect', selected);
-        const { status } = this.state;
-        if (!selected) return;
-        if (selected.ID === this.getDir().ParentID) {
-            return;
-        }
-        if (status === 'ready') {
-            this.setState({ selected });
-            return;
-        }
-        if (status === 'multiselect') {
-            const { multiselected } = this.state;
-            const { ID } = selected;
-            if (multiselected[ID] !== undefined) {
-                delete multiselected[ID];
-            } else {
-                multiselected[ID] = selected;
+    onSelect = (node) => {
+        console.log('onSelect', node);
+        if (!node) return;
+
+        this.setState(state => {
+            const { status } = state;
+            if (status === 'ready') {
+                return { ...state, selected: node };
             }
-            this.setState({ multiselected });
-            return;
-        }
+            if (status === 'multiselect') {
+                return {
+                    ...state,
+                    selected: ExplorerAPI.select(
+                        state.selected,
+                        node,
+                    )
+                };
+            }
+            return state;
+        });
     }
 
     delete = it => {
-        this.fetcher.postJSON('/stree/Delete/' + it.ID)
-            .then(() => this.refresh());
+        this.api.Delete(it)
+            .then(this.refresh);
     }
 
     rename = newName => {
         this.setState({ dialog: null });
-        this.fetcher.postJSON(
-            '/stree/Rename/' + this.state.selected.ID + '?newName=' + encodeURIComponent(newName)
-        )
-        fetch('/stree/Rename/' + this.state.selected.ID + '?newName=' + encodeURIComponent(newName), {
-            method: 'POST'
-        })
-            .then(() => this.refresh());
+        this.api.Rename(this.state.selected, newName)
+            .then(this.refresh);
     }
 
     onMultiselect = () => {
-        if (this.state.status === 'multiselect') {
-            this.setState({
-                status: 'ready',
-            });
-            return;
-        }
-        if (this.state.status === 'ready') {
-            const { files } = this.state;
-            const len = files.length;
-            this.setState({
-                multiselected: {},
-                status: 'multiselect',
-                selected: null,
-            })
-        }
+        this.setState(state => {
+            if (state.status === 'multiselect') {
+                return { ...state, status: 'ready', selected: null };
+            }
+            if (state.status === 'ready') {
+                return { ...state, selected: {}, status: 'multiselect' };
+            }
+            return state;
+        })
     }
 
     render() {
-        const { classes } = this.props;
-
         let info;
         if (this.state.status === 'multiselect') {
             info = (
                 <Multiselection
-                    files={this.state.multiselected}
+                    files={this.state.selected}
                 />
             )
         } else {
@@ -190,7 +160,6 @@ class Explorer extends Component {
                         path={this.state.path}
                         files={this.state.files}
                         selected={this.state.selected}
-                        multiselected={this.state.multiselected}
                         status={this.state.status}
                         onOpen={this.onOpen}
                         onSelect={this.onSelect}
@@ -203,10 +172,11 @@ class Explorer extends Component {
 
                 {this.state.status === 'multiselect' && 
                     <Grid item xs={12}>
-                        <MultiselectionTools 
+                        <MultiselectionTools
                             files={this.state.files}
-                            multiselected={this.state.multiselected}
-                            onChangeSelection={it => this.setState({ multiselected: it })}
+                            multiselected={this.state.selected}
+                            onChangeSelection={it => this.setState({ selected: it })}
+                            onSelect={this.onSelect}
                         />
                     </Grid>
                 }
@@ -235,4 +205,4 @@ class Explorer extends Component {
     }
 }
 
-export default withStyles(styles)(Explorer);
+export default Explorer;

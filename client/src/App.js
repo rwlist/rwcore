@@ -14,9 +14,6 @@ import UserPage from './user/UserPage';
 import Fetcher from './util/Fetcher';
 
 const styles = {
-    root: {
-      flexGrow: 1,
-    },
     flex: {
       flexGrow: 1,
     },
@@ -39,16 +36,13 @@ class App extends Component {
     render() {
         const { classes } = this.props;
 
-        let content;
-        if (this.state.tab === 0) {
-            content = <UserPage/>
-        }
-        if (this.state.tab === 1) {
-            content = <Lists/>
-        }
-        if (this.state.tab === 2) {
-            content = <STree fetcher={this.fetcher}/>
-        }
+        const tabs = [
+            [<UserPage fetcher={this.fetcher}/>, "User"],
+            [<Lists fetcher={this.fetcher}/>, "Lists"],
+            [<STree fetcher={this.fetcher}/>, "My STree"],
+        ]
+
+        const content = tabs[this.state.tab][0];
         return (
             <MuiThemeProvider theme={theme}>
                 <CssBaseline/>
@@ -58,9 +52,7 @@ class App extends Component {
                             rwlist.io
                         </Typography>
                         <Tabs value={this.state.tab} onChange={this.handleTab}>
-                            <Tab label="User" />
-                            <Tab label="Lists" />
-                            <Tab label="My STree" />
+                            {tabs.map((it, index) => <Tab label={it[1]} key={index}/>)}
                         </Tabs>
                     </Toolbar>
                 </AppBar>
