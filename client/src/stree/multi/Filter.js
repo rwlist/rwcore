@@ -31,7 +31,11 @@ class Filter extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            filterCode: '',
+            filterCode: '() => false',
+            filter: () => false,
+            status: 'ok',
+            matches: 0,
+            error: null,
         }
     }
 
@@ -39,6 +43,24 @@ class Filter extends Component {
         this.setState({
             [name]: value,
         });
+    }
+
+    onCodeChange = filterCode => {
+        try {
+            const filter = eval(filterCode);
+            this.setState({
+                filterCode,
+                filter,
+                status: 'ok',
+                matches: this.props.tools.countMatches(filter),
+            })
+        } catch (error) {
+            this.setState({
+                filterCode,
+                status: 'fail',
+                error,
+            })
+        }
     }
     
     createButton(content, action) {
@@ -55,6 +77,11 @@ class Filter extends Component {
         )
     }
 
+    apply = () => {
+        console.log('apply filter');
+        this.props.tools.applyFilter(this.state.filter);
+    }
+
     render() {
         const { classes } = this.props;
         const btn = this.createButton;
@@ -64,12 +91,12 @@ class Filter extends Component {
                 <Typography variant="headline" gutterBottom className={classes.head}>
                     Select by filter
                 </Typography>
-                <Grid container>
+                <Grid container spacing={16}>
                     <Grid item xs={12} sm={6}>
                         <AceEditor
                             mode="javascript"
                             theme="github"
-                            onChange={this.handleChange('filterCode')}
+                            onChange={this.onCodeChange}
                             name="UNIQUE_ID_OF_DIV"
                             editorProps={{$blockScrolling: true}}
                             value={this.state.filterCode}
@@ -77,15 +104,35 @@ class Filter extends Component {
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <AceEditor
-                            mode="javascript"
-                            theme="github"
-                            onChange={this.handleChange('filterCode')}
-                            name="UNIQUE_ID_OF_DIV"
-                            editorProps={{$blockScrolling: true}}
-                            value={this.state.filterCode}
-                            width="100%"
-                        />
+                        {this.state.status === 'ok' && (
+                            <React.Fragment>
+                                <Typography gutterBottom>
+                                    Filter matches {this.state.matches} items.
+                                </Typography>
+                            </React.Fragment>
+                        )}
+                        {this.state.status === 'fail' && (
+                            <React.Fragment>
+                                <Typography gutterBottom>
+                                    Filter fails with error.
+                                </Typography>
+                                <AceEditor
+                                    mode="javascript"
+                                    theme="github"
+                                    name="displayErrorQuick"
+                                    value={this.state.error.message}
+                                />
+                            </React.Fragment>
+                        )}
+                        <br/>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.apply}
+                            disabled={this.state.status !== 'ok'}
+                        >
+                            Apply filter
+                        </Button>
                     </Grid>
                 </Grid>
             </React.Fragment>

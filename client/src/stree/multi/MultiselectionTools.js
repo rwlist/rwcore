@@ -38,11 +38,9 @@ const styles = theme => ({
 class MultiselectionTools extends Component {
     constructor(props) {
         super(props);
-        this.tools = new Tools(props);
-        this.state = {
-            filterCode: '',
-        }
     }
+
+    tools = () => new Tools(this.props);
 
     handleChange = name => value => {
         this.setState({
@@ -64,16 +62,6 @@ class MultiselectionTools extends Component {
         )
     }
 
-    clearSelection = () => {
-        this.props.onChangeSelection({});
-    }
-
-    invertSelecion = () => {
-        this.props.files.forEach(it => {
-            this.props.onSelect(it);
-        });
-    }
-
     render() {
         const { classes } = this.props;
         const btn = this.createButton;
@@ -88,7 +76,7 @@ class MultiselectionTools extends Component {
                     {btn("Invert selection", this.invertSelecion)}
                 </Grid>
                 <Divider className={classes.divider}/>
-                <Filter />
+                <Filter tools={this.tools()}/>
             </Paper>
         )
     }
