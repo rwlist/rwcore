@@ -11,6 +11,7 @@ import RenameDialog from './dialog/Rename';
 import Multiselection from './multi/Multiselection';
 import MultiselectionTools from './multi/MultiselectionTools';
 import ExplorerAPI from './ExplorerAPI';
+import Tools from './multi/Tools';
 
 class Explorer extends Component {
     constructor(props) {
@@ -37,19 +38,34 @@ class Explorer extends Component {
     }
 
     fetchFiles = (path) => {
-        this.setState({
-            selected: null,
+        this.setState({ // TODO: async setState
             status: 'loading',
+            prevStatus: this.state.status,
             files: null,
             path,
         });
         this.api.ListDirectory(ExplorerAPI.getDir(path))
-            .then(files => this.setState({
-                selected: null,
-                status: 'ready',
-                files,
-                path,
-            }));
+            .then(files => {
+                if (this.state.prevStatus === 'multiselect') {
+                    this.setState({
+                        selected: new Tools({files}).containsFilter(this.state.selected),
+                        status: 'multiselect',
+                        files,
+                        path,
+                    });
+                } else {
+                    let newSelected = null;
+                    if (new Tools({files}).contains(this.state.selected)) {
+                        newSelected = this.state.selected;
+                    }
+                    this.setState({
+                        selected: newSelected,
+                        status: 'ready',
+                        files,
+                        path,
+                    });
+                }
+            });
     }
 
     createDirectory = (name) => {
@@ -138,6 +154,7 @@ class Explorer extends Component {
             info = (
                 <FileInfo
                     file={this.state.selected}
+                    dir={ExplorerAPI.getDir(this.state.path)}
                     onDelete={() => this.delete(this.state.selected)}
                 />
             )
@@ -173,10 +190,12 @@ class Explorer extends Component {
                 {this.state.status === 'multiselect' && 
                     <Grid item xs={12}>
                         <MultiselectionTools
+                            api={this.api}
                             files={this.state.files}
-                            multiselected={this.state.selected}
+                            selected={this.state.selected}
                             onChangeSelection={it => this.setState({ selected: it })}
                             onSelect={this.onSelect}
+                            refresh={this.refresh}
                         />
                     </Grid>
                 }

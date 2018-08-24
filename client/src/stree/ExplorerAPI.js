@@ -58,4 +58,10 @@ export default class ExplorerAPI {
             '/stree/Rename/' + node.ID + '?newName=' + encodeURIComponent(newName)
         );
     }
+    
+    Move(node, newParentID) {
+        return this.fetcher.postJSON(
+            '/stree/Move/' + node.ID + '?newParentID=' + encodeURIComponent(newParentID)
+        )
+    }
 }

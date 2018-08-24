@@ -3,6 +3,10 @@ export default class Tools {
         Object.assign(this, props);
     }
 
+    selectedCount = () => {
+        return Object.keys(this.selected).length;
+    }
+
     clearSelection = () => {
         this.onChangeSelection({});
     }
@@ -27,5 +31,44 @@ export default class Tools {
             }
         });
         return cnt;
+    }
+
+    contains = (node) => {
+        if (!node) {
+            return false;
+        }
+        return !!this.files.find(it => it.ID === node.ID);
+    }
+
+    containsFilter = (selected) => {
+        const res = {};
+        Object.values(selected)
+            .filter(this.contains)
+            .forEach(it => res[it.ID] = it);
+        return res;
+    }
+
+    executeAction = action => {
+        let processed = 0;
+        let error = null;
+        let promises = [];
+        try {
+            Object.values(this.selected)
+                .forEach(it => {
+                    promises.push(Promise.resolve(action(it, this.api)));
+                    processed++;
+                });
+        } catch (e) {
+            error = e;
+        }
+        Promise.all(promises)
+            .then(values => {
+                console.log("actions finished", values);
+                this.refresh();
+            });
+        return {
+            processed,
+            error,
+        }
     }
 }

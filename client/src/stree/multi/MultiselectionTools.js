@@ -16,6 +16,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import red from '@material-ui/core/colors/red';
 import Filter from './Filter';
 import Tools from './Tools';
+import BulkUpdate from './BulkUpdate';
 
 const styles = theme => ({
     root: {
@@ -72,11 +73,13 @@ class MultiselectionTools extends Component {
                     Multiselection tools
                 </Typography>
                 <Grid container spacing={16}>
-                    {btn("Clear selection", this.clearSelection)}
-                    {btn("Invert selection", this.invertSelecion)}
+                    {btn("Clear selection", this.tools().clearSelection)}
+                    {btn("Invert selection", this.tools().invertSelecion)}
                 </Grid>
                 <Divider className={classes.divider}/>
                 <Filter tools={this.tools()}/>
+                <Divider className={classes.divider}/>
+                <BulkUpdate tools={this.tools()}/>
             </Paper>
         )
     }

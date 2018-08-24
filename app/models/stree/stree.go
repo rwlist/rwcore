@@ -94,7 +94,7 @@ func (s Session) GetRoot() (*Root, error) {
 
 func (s Session) GetNode(nodeID bson.ObjectId) (*Node, error) {
 	var node Node
-	err := s.Nodes.Find(bson.M{"_id": nodeID}).One(&node)
+	err := s.Nodes.FindId(nodeID).One(&node)
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +102,7 @@ func (s Session) GetNode(nodeID bson.ObjectId) (*Node, error) {
 }
 
 func (s Session) AssureDirectoryExists(dirID bson.ObjectId) error {
-	var dir Node
-	err := s.Nodes.Find(bson.M{"_id": dirID}).One(&dir)
+	dir, err := s.GetNode(dirID)
 	if err != nil {
 		return err
 	}
@@ -162,8 +161,7 @@ func (s Session) ListDirectory(directoryID bson.ObjectId) ([]*Node, error) {
 }
 
 func (s Session) Delete(nodeID bson.ObjectId) error {
-	var node Node
-	err := s.Nodes.Find(bson.M{"_id": nodeID}).One(&node)
+	node, err := s.GetNode(nodeID)
 	if err != nil {
 		return err
 	}
@@ -177,13 +175,12 @@ func (s Session) Delete(nodeID bson.ObjectId) error {
 	if n != 0 {
 		return ErrNotEmptyDirectory
 	}
-	err = s.Nodes.Remove(bson.M{"_id": nodeID})
+	err = s.Nodes.RemoveId(nodeID)
 	return err
 }
 
 func (s Session) Rename(nodeID bson.ObjectId, newName string) error {
-	var node Node
-	err := s.Nodes.Find(bson.M{"_id": nodeID}).One(&node)
+	node, err := s.GetNode(nodeID)
 	if err != nil {
 		return err
 	}
@@ -191,5 +188,17 @@ func (s Session) Rename(nodeID bson.ObjectId, newName string) error {
 		return ErrRootDirectory
 	}
 	node.Name = newName
+	return s.Nodes.UpdateId(nodeID, node)
+}
+
+func (s Session) Move(nodeID, newParentID bson.ObjectId) error {
+	node, err := s.GetNode(nodeID)
+	if err != nil {
+		return err
+	}
+	if err := s.AssureDirectoryExists(newParentID); err != nil {
+		return err
+	}
+	node.ParentID = &newParentID
 	return s.Nodes.UpdateId(nodeID, node)
 }

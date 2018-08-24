@@ -27,69 +27,66 @@ const styles = theme => ({
     },
 });
 
-class Filter extends Component {
+class BulkUpdate extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            filterCode: '() => false',
-            filter: () => false,
-            status: 'ok',
-            matches: 0,
+            code: '(it, api) => false',
             error: null,
         }
     }
 
-    handleChange = name => value => {
-        this.setState({
-            [name]: value,
-        });
+    onCodeChange = code => {
+        this.setState({ code })
     }
 
-    onCodeChange = filterCode => {
+    onCompile = () => {
+        this.setState({ result: null });
         try {
-            const filter = eval(filterCode);
+            const action = eval(this.state.code);
             this.setState({
-                filterCode,
-                filter,
+                action,
                 status: 'ok',
-                matches: this.props.tools.countMatches(filter),
-            })
+            });
         } catch (error) {
             this.setState({
-                filterCode,
                 status: 'fail',
                 error,
-            })
+            });
         }
-    }
-    
-    createButton(content, action) {
-        return (
-            <Grid item>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={action}
-                >
-                    {content}
-                </Button>
-            </Grid>
-        )
     }
 
     apply = () => {
-        console.log('apply filter');
-        this.props.tools.applyFilter(this.state.filter);
+        this.setState({
+            result: this.props.tools.executeAction(this.state.action)
+        })
     }
 
     render() {
         const { classes } = this.props;
-        const btn = this.createButton;
 
+        let result = null;
+        if (this.state.result) {
+            result = (
+                <React.Fragment>
+                    <Typography gutterBottom>
+                        Processed {this.state.result.processed} items.
+                    </Typography>
+                    {!!this.state.result.error && (
+                        <AceEditor
+                            mode="javascript"
+                            theme="github"
+                            name="displayErrorQuick"
+                            value={this.state.result.error.message}
+                        />
+                    )}
+                </React.Fragment>
+            )
+        }
         return (
             <React.Fragment>
                 <Typography variant="headline" gutterBottom className={classes.head}>
-                    Select by filter
+                    Bulk action
                 </Typography>
                 <Grid container spacing={16}>
                     <Grid item xs={12} sm={6}>
@@ -97,9 +94,9 @@ class Filter extends Component {
                             mode="javascript"
                             theme="github"
                             onChange={this.onCodeChange}
-                            name="filterCode"
+                            name="actionCode"
                             editorProps={{$blockScrolling: true}}
-                            value={this.state.filterCode}
+                            value={this.state.code}
                             width="100%"
                         />
                     </Grid>
@@ -107,14 +104,14 @@ class Filter extends Component {
                         {this.state.status === 'ok' && (
                             <React.Fragment>
                                 <Typography gutterBottom>
-                                    Filter matches {this.state.matches} items.
+                                    Action compiled ok. Ready to apply action to {this.props.tools.selectedCount()} items.
                                 </Typography>
                             </React.Fragment>
                         )}
                         {this.state.status === 'fail' && (
                             <React.Fragment>
                                 <Typography gutterBottom>
-                                    Filter fails with error.
+                                    Action fails with error.
                                 </Typography>
                                 <AceEditor
                                     mode="javascript"
@@ -124,14 +121,22 @@ class Filter extends Component {
                                 />
                             </React.Fragment>
                         )}
+                        {result}
                         <br/>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.onCompile}
+                        >
+                            Compile
+                        </Button>
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={this.apply}
                             disabled={this.state.status !== 'ok'}
                         >
-                            Apply filter
+                            Run action
                         </Button>
                     </Grid>
                 </Grid>
@@ -140,4 +145,4 @@ class Filter extends Component {
     }
 }
 
-export default withStyles(styles)(Filter);
+export default withStyles(styles)(BulkUpdate);

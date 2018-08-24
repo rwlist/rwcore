@@ -65,6 +65,9 @@ class FileInfo extends Component {
         return (
             <Paper className={classes.root}>
                 <Grid container spacing={8} direction="column">
+                    <Typography variant="caption" gutterBottom align="center">
+                        Current dirID is {this.props.dir.ID}
+                    </Typography>
                     {content}
                 </Grid>
             </Paper>

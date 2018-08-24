@@ -85,6 +85,14 @@ func (c STree) Rename(nodeID, newName string) revel.Result {
 	return c.RenderOK("Successfully renamed")
 }
 
+func (c STree) Move(nodeID, newParentID string) revel.Result {
+	err := c.session.Move(bson.ObjectIdHex(nodeID), bson.ObjectIdHex(newParentID))
+	if err != nil {
+		return c.RenderMyError(err)
+	}
+	return c.RenderOK("Successfully moved")
+}
+
 func init() {
 	revel.InterceptMethod((*STree).before, revel.BEFORE)
 	revel.InterceptMethod((*STree).finally, revel.FINALLY)
