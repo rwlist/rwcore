@@ -11,7 +11,7 @@ func (a *Auth) Router() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/status", a.status)
 	r.Post("/login", a.login)
-	r.Post("/register", a.register)
+	r.Post("/signup", a.signup)
 	return r
 }
 
@@ -20,7 +20,7 @@ func (a *Auth) login(w http.ResponseWriter, r *http.Request) {
 	a.processUser(w, user, err)
 }
 
-func (a *Auth) register(w http.ResponseWriter, r *http.Request) {
+func (a *Auth) signup(w http.ResponseWriter, r *http.Request) {
 	user, err := a.provider.CreateUser(r)
 	a.processUser(w, user, err)
 }

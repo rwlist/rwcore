@@ -12,21 +12,39 @@ import (
 
 const (
 	BearerPrefix = "Bearer "
-	UserKey      = "User"
 )
+
+type Config struct {
+	JWT     JWTConfig
+	UserKey string
+}
+
+type JWTConfig struct {
+	Secret        string
+	Duration      string
+	SigningMethod string
+}
 
 type Auth struct {
 	provider    Provider
+	userKey     string
 	jwtSecret   []byte
 	jwtDuration time.Duration
 	jwtSigning  jwt.SigningMethod
 }
 
-func New(provider Provider) *Auth {
-	return &Auth{
-		provider:  provider,
-		jwtSecret: []byte("CHANGE_THIS"), // TODO
+func New(provider Provider, config Config) (*Auth, error) {
+	duration, err := time.ParseDuration(config.JWT.Duration)
+	if err != nil {
+		return nil, err
 	}
+	return &Auth{
+		provider:    provider,
+		userKey:     config.UserKey,
+		jwtSecret:   []byte(config.JWT.Secret),
+		jwtDuration: duration,
+		jwtSigning:  jwt.GetSigningMethod(config.JWT.SigningMethod),
+	}, nil
 }
 
 func (a *Auth) GetClaims(r *http.Request) (jwt.MapClaims, error) {
@@ -39,7 +57,7 @@ func (a *Auth) GetUser(r *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	user := claims[UserKey]
+	user := claims[a.userKey]
 	if user == nil {
 		return nil, errors.New("No user in claims")
 	}
@@ -52,7 +70,7 @@ func (a *Auth) processUser(w http.ResponseWriter, user interface{}, err error) {
 		return
 	}
 	token, err := a.createToken(jwt.MapClaims{
-		UserKey: user,
+		a.userKey: user,
 	})
 	if err != nil {
 		WriteError(w, http.StatusBadRequest, err.Error())
