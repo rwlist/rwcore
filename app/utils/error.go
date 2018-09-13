@@ -17,12 +17,12 @@ import (
 // helps reveal information on the error, setting it on Err, and in the Render()
 // method, using it to set the application-specific error code in AppCode.
 type ErrResponse struct {
-	Err            error `json:"-"` // low-level runtime error
-	HTTPStatusCode int   `json:"-"` // http response status code
+	Err            error `json:"-"`          // low-level runtime error
+	HTTPStatusCode int   `json:"StatusCode"` // http response status code
 
-	StatusText string `json:"status"`          // user-level status message
-	AppCode    int64  `json:"code,omitempty"`  // application-specific error code
-	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
+	StatusText string `json:"Status"`            // user-level status message
+	AppCode    int64  `json:"AppCode,omitempty"` // application-specific error code
+	ErrorText  string `json:"Error,omitempty"`   // application-level error message, for debugging
 }
 
 func (e ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
