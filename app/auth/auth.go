@@ -6,8 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/render"
+	"github.com/rwlist/rwcore/app/utils"
+
 	jwt "github.com/dgrijalva/jwt-go"
-	. "github.com/rwlist/rwcore/app/utils"
 )
 
 const (
@@ -64,19 +66,20 @@ func (a *Auth) GetUser(r *http.Request) (interface{}, error) {
 	return user, nil
 }
 
-func (a *Auth) processUser(w http.ResponseWriter, user interface{}, err error) {
+func (a *Auth) processUser(w http.ResponseWriter, r *http.Request, user interface{}, err error) {
 	if err != nil {
-		WriteError(w, http.StatusBadRequest, err.Error())
+		render.Render(w, r, utils.ErrBadRequest.With(err))
 		return
 	}
 	token, err := a.createToken(jwt.MapClaims{
 		a.userKey: user,
 	})
 	if err != nil {
-		WriteError(w, http.StatusBadRequest, err.Error())
+		render.Render(w, r, utils.ErrBadRequest.With(err))
 		return
 	}
-	WriteJSON(w, http.StatusOK, TokenResponse{user, token})
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, TokenResponse{user, token})
 }
 
 func getToken(r *http.Request) string {
