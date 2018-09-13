@@ -5,8 +5,10 @@ import (
 	"net/http"
 )
 
+type key int
+
 const (
-	DBKey = "DB"
+	DBKey key = iota
 )
 
 func (p *Provider) Middleware(next http.Handler) http.Handler {

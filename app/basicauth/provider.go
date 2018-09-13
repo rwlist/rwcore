@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	"github.com/globalsign/mgo/bson"
-
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/rwlist/rwcore/app/db"
+	"github.com/rwlist/rwcore/app/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginForm struct {
@@ -24,13 +23,7 @@ type SignUpForm struct {
 	SecondName string
 }
 
-type Provider struct {
-	baseDB *db.Provider
-}
-
-func New(db *db.Provider) *Provider {
-	return &Provider{db}
-}
+type Provider struct{}
 
 func (a Provider) FindUser(r *http.Request) (interface{}, error) {
 	decoder := json.NewDecoder(r.Body)
@@ -39,7 +32,7 @@ func (a Provider) FindUser(r *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return a.HandleLogin(form)
+	return a.HandleLogin(r, form)
 }
 
 func (a Provider) CreateUser(r *http.Request) (interface{}, error) {
@@ -49,14 +42,13 @@ func (a Provider) CreateUser(r *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return a.HandleSignUp(form)
+	return a.HandleSignUp(r, form)
 }
 
-func (a Provider) HandleLogin(form LoginForm) (interface{}, error) {
-	DB := a.baseDB.Copy()
-	defer DB.Close()
+func (a Provider) HandleLogin(r *http.Request, form LoginForm) (interface{}, error) {
+	db := r.Context().Value(db.DBKey).(*db.Provider)
 
-	user, err := DB.Users().FindByUsername(form.Username)
+	user, err := db.Users().FindByUsername(form.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -67,25 +59,35 @@ func (a Provider) HandleLogin(form LoginForm) (interface{}, error) {
 	return user, nil
 }
 
-func (a Provider) HandleSignUp(form SignUpForm) (interface{}, error) {
-	DB := a.baseDB.Copy()
-	defer DB.Close()
+func (a Provider) HandleSignUp(r *http.Request, form SignUpForm) (interface{}, error) {
+	db := r.Context().Value(db.DBKey).(*db.Provider)
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 
-	user := &db.User{
+	roles := make(model.Roles).AddRole("user")
+
+	count, err := db.Users().Size()
+	if err != nil {
+		return nil, err
+	}
+	if count == 0 {
+		roles = roles.AddRole("admin")
+	}
+
+	user := &model.User{
 		ID:             bson.NewObjectId(),
 		Username:       form.Username,
 		HashedPassword: hashed,
 		Email:          form.Email,
 		FirstName:      form.FirstName,
 		SecondName:     form.SecondName,
+		Roles:          roles,
 	}
 
-	err = DB.Users().InsertOne(user)
+	err = db.Users().InsertOne(user)
 	if err != nil {
 		return nil, err
 	}
