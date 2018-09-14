@@ -1,4 +1,4 @@
-package basicauth
+package auth
 
 import (
 	"encoding/json"
@@ -23,29 +23,29 @@ type SignUpForm struct {
 	SecondName string
 }
 
-type Provider struct{}
+type Users struct{}
 
-func (a Provider) FindUser(r *http.Request) (interface{}, error) {
+func (u Users) FindUser(r *http.Request) (*model.User, error) {
 	decoder := json.NewDecoder(r.Body)
 	var form LoginForm
 	err := decoder.Decode(&form)
 	if err != nil {
 		return nil, err
 	}
-	return a.HandleLogin(r, form)
+	return u.HandleLogin(r, form)
 }
 
-func (a Provider) CreateUser(r *http.Request) (interface{}, error) {
+func (u Users) CreateUser(r *http.Request) (*model.User, error) {
 	decoder := json.NewDecoder(r.Body)
 	var form SignUpForm
 	err := decoder.Decode(&form)
 	if err != nil {
 		return nil, err
 	}
-	return a.HandleSignUp(r, form)
+	return u.HandleSignUp(r, form)
 }
 
-func (a Provider) HandleLogin(r *http.Request, form LoginForm) (interface{}, error) {
+func (u Users) HandleLogin(r *http.Request, form LoginForm) (*model.User, error) {
 	db := r.Context().Value(db.DBKey).(*db.Provider)
 
 	user, err := db.Users().FindByUsername(form.Username)
@@ -59,7 +59,7 @@ func (a Provider) HandleLogin(r *http.Request, form LoginForm) (interface{}, err
 	return user, nil
 }
 
-func (a Provider) HandleSignUp(r *http.Request, form SignUpForm) (interface{}, error) {
+func (u Users) HandleSignUp(r *http.Request, form SignUpForm) (*model.User, error) {
 	db := r.Context().Value(db.DBKey).(*db.Provider)
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)

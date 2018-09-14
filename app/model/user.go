@@ -1,6 +1,9 @@
 package model
 
 import (
+	"encoding/json"
+	"reflect"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/globalsign/mgo/bson"
 )
@@ -46,15 +49,41 @@ func (r Roles) GetBSON() (interface{}, error) {
 }
 
 func (r *Roles) SetBSON(raw bson.Raw) error {
-	roles := make(Roles)
+	initMap(r)
 	var arr []string
-	err := raw.Unmarshal(arr)
+	err := raw.Unmarshal(&arr)
 	if err != nil {
 		return err
 	}
 	for _, v := range arr {
-		roles = roles.AddRole(v)
+		r.AddRole(v)
 	}
-	r = &roles
 	return nil
+}
+
+func (r Roles) MarshalJSON() ([]byte, error) {
+	arr := make([]string, 0)
+	for k := range r {
+		arr = append(arr, k)
+	}
+	return json.Marshal(arr)
+}
+
+func (r *Roles) UnmarshalJSON(b []byte) error {
+	initMap(r)
+	var arr []string
+	err := json.Unmarshal(b, &arr)
+	if err != nil {
+		return err
+	}
+	for _, v := range arr {
+		r.AddRole(v)
+	}
+	return nil
+}
+
+func initMap(i interface{}) {
+	rv := reflect.ValueOf(i).Elem()
+	t := rv.Type()
+	rv.Set(reflect.MakeMap(t))
 }

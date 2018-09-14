@@ -16,6 +16,7 @@ func (a *App) createRouter() *chi.Mux {
 	r.Use(a.DB.Middleware)
 
 	r.Mount("/auth", a.Auth.Router())
+	r.Mount("/admin", a.AdminService.Router())
 
 	return r
 }

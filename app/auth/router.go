@@ -9,6 +9,11 @@ import (
 	"github.com/go-chi/render"
 )
 
+type TokenResponse struct {
+	User  interface{}
+	Token string
+}
+
 func (a *Auth) Router() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/status", a.status)
@@ -18,24 +23,24 @@ func (a *Auth) Router() http.Handler {
 }
 
 func (a *Auth) login(w http.ResponseWriter, r *http.Request) {
-	user, err := a.provider.FindUser(r)
-	a.processUser(w, r, user, err)
+	claims, err := a.handleLogin(r)
+	a.claimsResponse(w, r, claims, err)
 }
 
 func (a *Auth) signup(w http.ResponseWriter, r *http.Request) {
-	user, err := a.provider.CreateUser(r)
-	a.processUser(w, r, user, err)
+	claims, err := a.handleSignUp(r)
+	a.claimsResponse(w, r, claims, err)
 }
 
 func (a *Auth) status(w http.ResponseWriter, r *http.Request) {
-	user, err := a.GetUser(r)
+	claims, err := a.GetClaims(r)
 	if err != nil {
 		render.Render(w, r, utils.ErrUnathorized.With(err))
 		return
 	}
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, TokenResponse{
-		User:  user,
+		User:  claims.User,
 		Token: getToken(r),
 	})
 }

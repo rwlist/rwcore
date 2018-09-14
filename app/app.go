@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/rwlist/rwcore/app/admin"
 	"github.com/rwlist/rwcore/app/auth"
-	"github.com/rwlist/rwcore/app/basicauth"
 	"github.com/rwlist/rwcore/app/db"
 )
 
@@ -28,7 +27,7 @@ func CreateApp(conf RootConfig) *App {
 	if err != nil {
 		log.Fatal(err)
 	}
-	app.Auth, err = auth.New(&basicauth.Provider{}, conf.Auth)
+	app.Auth, err = auth.New(conf.Auth)
 	if err != nil {
 		log.Fatal(err)
 	}

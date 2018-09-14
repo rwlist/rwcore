@@ -2,16 +2,11 @@ package auth
 
 import (
 	"errors"
-	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func (a *Auth) createToken(claims jwt.MapClaims) (string, error) {
-	cur := time.Now().UTC()
-	exp := cur.Add(a.jwtDuration)
-	claims["nbf"] = cur.Unix()
-	claims["exp"] = exp.Unix()
+func (a *Auth) createToken(claims *Claims) (string, error) {
 	token := jwt.NewWithClaims(a.jwtSigning, claims)
 	tokenString, err := token.SignedString(a.jwtSecret)
 	if err != nil {
@@ -20,19 +15,21 @@ func (a *Auth) createToken(claims jwt.MapClaims) (string, error) {
 	return tokenString, nil
 }
 
-func (a *Auth) readToken(value string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(value, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Unexpected signing method")
-		}
-		return a.jwtSecret, nil
-	})
+func (a *Auth) keyFunc(token *jwt.Token) (interface{}, error) {
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, errors.New("Unexpected signing method")
+	}
+	return a.jwtSecret, nil
+}
+
+func (a *Auth) readToken(value string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(value, claims, a.keyFunc)
 	if err != nil {
 		return nil, err
 	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims, nil
+	if !token.Valid {
+		return nil, errors.New("JWT token invalid")
 	}
-	return nil, errors.New("JWT token invalid")
+	return claims, nil
 }
