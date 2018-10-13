@@ -17,6 +17,8 @@ type App struct {
 
 	Router   *chi.Mux
 	bindAddr string
+
+	modules []Module
 }
 
 func CreateApp(conf RootConfig) *App {
@@ -25,11 +27,11 @@ func CreateApp(conf RootConfig) *App {
 	app := &App{}
 	app.DB, err = db.New(conf.Mongo)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("MongoDB", err)
 	}
 	app.Auth, err = auth.New(conf.Auth)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Auth", err)
 	}
 	app.AdminService = &admin.Service{}
 
@@ -40,5 +42,6 @@ func CreateApp(conf RootConfig) *App {
 }
 
 func (app *App) Start() error {
+	log.Println("Server started")
 	return http.ListenAndServe(app.bindAddr, app.Router)
 }
