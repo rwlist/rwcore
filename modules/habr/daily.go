@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	waitDuration = 30 * time.Minutes
+	waitDuration = 5 * time.Minute
 )
 
 type ReaderDailyTop struct {
