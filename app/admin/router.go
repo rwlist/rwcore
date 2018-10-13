@@ -20,6 +20,5 @@ type AdminMessage struct {
 }
 
 func (s Service) test(w http.ResponseWriter, r *http.Request) {
-	render.Status(r, http.StatusOK)
 	render.JSON(w, r, AdminMessage{"Congrats, you are admin!"})
 }
