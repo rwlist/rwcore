@@ -8,7 +8,7 @@ import (
 type key int
 
 const (
-	DBKey key = iota
+	dbKey key = iota
 )
 
 func (p *Provider) Middleware(next http.Handler) http.Handler {
@@ -17,8 +17,13 @@ func (p *Provider) Middleware(next http.Handler) http.Handler {
 		defer db.Close()
 
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, DBKey, db)
+		ctx = context.WithValue(ctx, dbKey, db)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 	return http.HandlerFunc(fn)
+}
+
+// From accuires db.Provider from request context
+func From(r *http.Request) *Provider {
+	return r.Context().Value(dbKey).(*Provider)
 }

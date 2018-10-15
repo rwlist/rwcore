@@ -20,19 +20,44 @@ func (s ArticleStore) GetAll() ([]model.Article, error) {
 	return articles, err
 }
 
+// UpdateTags -
+//
+// unused, todo: remove
 func (s ArticleStore) UpdateTags(id bson.ObjectId, tags map[string]string) error {
 	return s.c.Update(
 		bson.M{
 			"_id": id,
 		},
 		bson.M{
-			"tags": tags,
+			"$set": bson.M{
+				"tags": tags,
+			},
 		},
 	)
 }
 
-func (s ArticleStore) InsertOne(article *model.Article) error {
-	return s.c.Insert(article)
+func (s ArticleStore) InsertOne(article *model.Article) (err error) {
+	err = article.BeforeInsert()
+	if err != nil {
+		return err
+	}
+	err = s.c.Insert(article)
+	return
+}
+
+func (s ArticleStore) InsertMany(articles []model.Article) (err error) {
+	for k := range articles {
+		err = articles[k].BeforeInsert()
+		if err != nil {
+			return err
+		}
+	}
+	err = s.c.Insert(articles)
+	return
+}
+
+func (s ArticleStore) UpdateOne(article *model.Article) (err error) {
+	return s.c.UpdateId(article.ID, article)
 }
 
 func (s ArticleStore) Size() (int, error) {

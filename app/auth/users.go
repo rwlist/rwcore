@@ -46,7 +46,7 @@ func (u Users) CreateUser(r *http.Request) (*model.User, error) {
 }
 
 func (u Users) HandleLogin(r *http.Request, form LoginForm) (*model.User, error) {
-	db := r.Context().Value(db.DBKey).(*db.Provider)
+	db := db.From(r)
 
 	user, err := db.Users().FindByUsername(form.Username)
 	if err != nil {
@@ -60,7 +60,7 @@ func (u Users) HandleLogin(r *http.Request, form LoginForm) (*model.User, error)
 }
 
 func (u Users) HandleSignUp(r *http.Request, form SignUpForm) (*model.User, error) {
-	db := r.Context().Value(db.DBKey).(*db.Provider)
+	db := db.From(r)
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -74,7 +74,7 @@ func (u Users) HandleSignUp(r *http.Request, form SignUpForm) (*model.User, erro
 		return nil, err
 	}
 	if count == 0 {
-		roles = roles.AddRole("admin")
+		roles = roles.AddRole("admin") // Set up admin if no one is there
 	}
 
 	user := &model.User{

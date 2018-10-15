@@ -12,3 +12,9 @@ type Article struct {
 	Added time.Time         `bson:"added" json:"added"`
 	Tags  map[string]string `bson:"tags" json:"tags"`
 }
+
+func (a *Article) BeforeInsert() error {
+	a.ID = bson.NewObjectId()
+	a.Added = time.Now()
+	return nil
+}

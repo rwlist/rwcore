@@ -4,13 +4,12 @@ import (
 	"github.com/rwlist/rwcore/app"
 )
 
-type Articles struct {
-	app  *app.App
-	impl impl
+type Module struct {
+	app *app.App
 }
 
-func (a *Articles) Init(app *app.App) {
-	a.app = app
-	a.impl = impl{}
-	app.Router.Mount("/articles", a.Router())
+func (m *Module) Init(app *app.App) error {
+	m.app = app
+	app.Router.Mount("/articles", m.Router())
+	return nil
 }

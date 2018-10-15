@@ -37,6 +37,5 @@ func (a *Auth) claimsResponse(w http.ResponseWriter, r *http.Request, claims *Cl
 	if err != nil {
 		render.Render(w, r, utils.ErrInternal.With(err))
 	}
-	render.Status(r, http.StatusOK)
-	render.JSON(w, r, TokenResponse{claims.User, token})
+	render.Respond(w, r, TokenResponse{claims.User, token})
 }

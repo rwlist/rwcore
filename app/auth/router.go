@@ -3,10 +3,9 @@ package auth
 import (
 	"net/http"
 
-	"github.com/rwlist/rwcore/app/utils"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rwlist/rwcore/app/utils"
 )
 
 type TokenResponse struct {
@@ -38,9 +37,8 @@ func (a *Auth) status(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, utils.ErrUnathorized.With(err))
 		return
 	}
-	
-	render.Status(r, http.StatusOK)
-	render.JSON(w, r, TokenResponse{
+
+	render.Respond(w, r, TokenResponse{
 		User:  claims.User,
 		Token: getToken(r),
 	})

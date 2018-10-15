@@ -1,9 +1,13 @@
 package utils
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/go-chi/render"
+)
 
 func customRespond(w http.ResponseWriter, r *http.Request, v interface{}) {
-	render.DefaultResponser(w, r, v)
+	render.DefaultResponder(w, r, v)
 }
 
 func init() {

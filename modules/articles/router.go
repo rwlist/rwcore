@@ -5,49 +5,73 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rwlist/rwcore/app/model"
 	"github.com/rwlist/rwcore/app/utils"
 )
 
-func (a *Articles) Router() chi.Router {
+func (m *Module) Router() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/add", a.addOne)
-	r.Post("/addMany", a.addMany)
-	r.Get("/all", a.getAll)
-	r.Route("/one/{id}", func(r chi.Router) {
-		r.Patch("/status", l.patchStatus)
-		r.Patch("/tags", l.patchTags)
-		r.Patch("/name", l.patchName)
+	r.Post("/add", m.addOne)
+	r.Post("/addMany", m.addMany)
+	r.Get("/all", m.getAll)
+	r.Route("/{id}", func(r chi.Router) {
+		r.Patch("/patch", m.patch)
 	})
 
 	return r
 }
 
-func (a *Articles) addOne(w http.ResponseWriter, r *http.Request) {
-
+func (m *Module) addOne(w http.ResponseWriter, r *http.Request) {
+	var article model.Article
+	err := render.Decode(r, &article)
+	if err != nil {
+		render.Render(w, r, utils.ErrBadRequest.With(err))
+		return
+	}
+	article, err = addOneArticle(r, article)
+	if err != nil {
+		render.Render(w, r, utils.ErrInternal.With(err))
+		return
+	}
+	render.Respond(w, r, article)
 }
 
-func (a *Articles) addMany(w http.ResponseWriter, r *http.Request) {
-
+func (m *Module) addMany(w http.ResponseWriter, r *http.Request) {
+	var articles []model.Article
+	err := render.Decode(r, &articles)
+	if err != nil {
+		render.Render(w, r, utils.ErrBadRequest.With(err))
+		return
+	}
+	articles, err = addManyArticles(r, articles)
+	if err != nil {
+		render.Render(w, r, utils.ErrInternal.With(err))
+		return
+	}
+	render.Respond(w, r, articles)
 }
 
-func (a *Articles) getAll(w http.ResponseWriter, r *http.Request) {
+func (m *Module) getAll(w http.ResponseWriter, r *http.Request) {
 	articles, err := getAllArticles(r)
 	if err != nil {
 		render.Render(w, r, utils.ErrInternal.With(err))
 	}
-	render.JSON(w, r, articles)
+	render.Respond(w, r, articles)
 }
 
-func (a *Articles) patchStatus(w http.ResponseWriter, r *http.Request) {
-	render.Bind()
-	article, err := patchStatus()
-}
-
-func (a *Articles) patchTags(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (a *Articles) patchName(w http.ResponseWriter, r *http.Request) {
-
+func (m *Module) patch(w http.ResponseWriter, r *http.Request) {
+	// TODO: parse {id} from link
+	var article model.Article
+	err := render.Decode(r, &article)
+	if err != nil {
+		render.Render(w, r, utils.ErrBadRequest.With(err))
+		return
+	}
+	article, err = patchArticle(r, article)
+	if err != nil {
+		render.Render(w, r, utils.ErrInternal.With(err))
+		return
+	}
+	render.Respond(w, r, article)
 }

@@ -38,6 +38,7 @@ func (r *ReaderDailyTop) Stop() {
 
 func (r *ReaderDailyTop) run() {
 	log.Println("Daily reader started")
+	defer close(r.posts)
 	for {
 		r.readAll(r.posts)
 		select {
@@ -47,7 +48,6 @@ func (r *ReaderDailyTop) run() {
 		case <-time.After(waitDuration):
 		}
 	}
-	close(r.posts)
 }
 
 func (r *ReaderDailyTop) readAll(ch chan<- models.ArticleDaily) {

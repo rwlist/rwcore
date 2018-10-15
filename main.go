@@ -6,6 +6,8 @@ import (
 	config "github.com/micro/go-config"
 	"github.com/micro/go-config/source/file"
 	"github.com/rwlist/rwcore/app"
+	_ "github.com/rwlist/rwcore/app/utils"
+	"github.com/rwlist/rwcore/modules/articles"
 	"github.com/rwlist/rwcore/modules/habr"
 )
 
@@ -27,5 +29,6 @@ func main() {
 
 	app := app.CreateApp(root)
 	app.AddModule(&habr.Module{})
+	app.AddModule(&articles.Module{})
 	app.Start()
 }
