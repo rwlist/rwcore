@@ -5,12 +5,14 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rwlist/rwcore/app/auth"
 	"github.com/rwlist/rwcore/app/model"
 	"github.com/rwlist/rwcore/app/utils"
 )
 
 func (m *Module) Router() chi.Router {
 	r := chi.NewRouter()
+	r.Use(auth.HasRole("articles"))
 
 	r.Post("/add", m.addOne)
 	r.Post("/addMany", m.addMany)

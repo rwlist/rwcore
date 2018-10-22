@@ -10,6 +10,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	AdminRole = "admin"
+	UserRole  = "user"
+)
+
 type LoginForm struct {
 	Username string
 	Password string
@@ -67,14 +72,14 @@ func (u Users) HandleSignUp(r *http.Request, form SignUpForm) (*model.User, erro
 		return nil, err
 	}
 
-	roles := make(model.Roles).AddRole("user")
+	roles := make(model.Roles).AddRole(UserRole)
 
 	count, err := db.Users().Size()
 	if err != nil {
 		return nil, err
 	}
 	if count == 0 {
-		roles = roles.AddRole("admin") // Set up admin if no one is there
+		roles = roles.AddRole(AdminRole) // Set up admin if no one is there
 	}
 
 	user := &model.User{

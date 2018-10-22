@@ -53,7 +53,8 @@ func HasRole(role string) func(http.Handler) http.Handler {
 				render.Render(w, r, utils.ErrUnathorized)
 				return
 			}
-			if !user.Roles.HasRole(role) {
+			// Check if user has role or admin
+			if !user.Roles.HasRole(role) && !user.Roles.HasRole(AdminRole) {
 				render.Render(w, r, utils.ErrForbidden)
 				return
 			}

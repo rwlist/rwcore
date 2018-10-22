@@ -52,7 +52,11 @@ func (s ArticleStore) InsertMany(articles []model.Article) (err error) {
 			return err
 		}
 	}
-	err = s.c.Insert(articles)
+	iSlice := make([]interface{}, len(articles))
+	for k, v := range articles {
+		iSlice[k] = v
+	}
+	err = s.c.Insert(iSlice...)
 	return
 }
 

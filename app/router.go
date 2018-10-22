@@ -12,6 +12,7 @@ func (a *App) createRouter() *chi.Mux {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(corsHandler())
 	r.Use(a.Auth.Middleware)
 	r.Use(a.DB.Middleware)
 
