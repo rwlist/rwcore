@@ -1,4 +1,4 @@
-package habr
+package client
 
 import (
 	"encoding/json"
@@ -37,6 +37,9 @@ func (c Client) Get(url string, args URL.Values) ([]byte, error) {
 		return nil, err
 	}
 	req.URL.RawQuery = args.Encode()
+	if c.Debug {
+		log.Printf("API GET URL: %s", req.URL)
+	}
 	return c.executeRequest(req)
 }
 

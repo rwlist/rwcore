@@ -1,4 +1,4 @@
-package habr
+package client
 
 import (
 	"log"
@@ -23,8 +23,7 @@ func NewReaderDailyTop() *ReaderDailyTop {
 		posts:  make(chan models.ArticleDaily),
 		exit:   make(chan struct{}),
 	}
-	// TODO: enable later
-	// go reader.run()
+	go reader.run()
 	return reader
 }
 
@@ -59,7 +58,7 @@ func (r *ReaderDailyTop) readAll(ch chan<- models.ArticleDaily) {
 			break
 		}
 		if !result.Success {
-			log.Println("Unsuccess while fetching articles.", result)
+			log.Println("No success in fetching articles.", result)
 		}
 		for _, v := range result.Data.Articles {
 			ch <- v

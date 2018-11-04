@@ -28,7 +28,7 @@ func main() {
 	}
 
 	app := app.CreateApp(root)
-	app.AddModule(&habr.Module{})
 	app.AddModule(&articles.Module{})
+	app.AddModule(&habr.Module{})
 	app.Start()
 }

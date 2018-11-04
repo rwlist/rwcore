@@ -7,3 +7,7 @@ func (p *Provider) Users() UserStore {
 func (p *Provider) Articles() ArticleStore {
 	return ArticleStore{p.c("articles")}
 }
+
+func (p *Provider) HabrDaily() HabrDailyStore {
+	return HabrDailyStore{p.c("habrDaily")}
+}
