@@ -39,6 +39,7 @@ func (r *ReaderDailyTop) run() {
 	log.Println("Daily reader started")
 	defer close(r.posts)
 	for {
+		log.Println("Read all daily articles")
 		r.readAll(r.posts)
 		select {
 		case <-r.exit:
