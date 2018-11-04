@@ -3,6 +3,7 @@ package articles
 import (
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rwlist/rwcore/app/auth"
@@ -70,10 +71,12 @@ func (m *Module) patch(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, utils.ErrBadRequest.With(err))
 		return
 	}
+	spew.Dump("Patch", article)
 	article, err = patchArticle(r, article)
 	if err != nil {
 		render.Render(w, r, utils.ErrInternal.With(err))
 		return
 	}
+	spew.Dump("Patch result", article)
 	render.Respond(w, r, article)
 }

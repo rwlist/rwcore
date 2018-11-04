@@ -7,10 +7,10 @@ import (
 )
 
 type Article struct {
-	ID    bson.ObjectId     `bson:"_id,omitempty" json:"id"`
-	URL   string            `bson:"url" json:"url"`
-	Added time.Time         `bson:"added" json:"added"`
-	Tags  map[string]string `bson:"tags" json:"tags"`
+	ID    bson.ObjectId          `bson:"_id,omitempty" json:"id"`
+	URL   string                 `bson:"url" json:"url"`
+	Added time.Time              `bson:"added" json:"added"`
+	Tags  map[string]interface{} `bson:"tags" json:"tags"`
 }
 
 func (a *Article) BeforeInsert() error {
