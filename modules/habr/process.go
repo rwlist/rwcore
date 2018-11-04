@@ -29,17 +29,23 @@ func (m *Module) process() {
 			ID:    bson.NewObjectId(),
 			URL:   v.FullURL,
 			Added: time.Now(),
-			Tags: map[string]interface{}{
-				"habr_author_login":      v.Author.Login,
-				"habr_author_fullname":   v.Author.Fullname,
-				"habr_article_id":        v.ID,
-				"habr_article_published": v.TimePublished,
-				"habr_article_comments":  v.CommentsCount,
-				"habr_article_title":     v.Title,
-				"name":                   v.Title + " / Хабр",
-				"habr_article_preview":   v.PreviewHTML,
-				"habr_article_reading":   v.ReadingCount,
-				"added_type":             "auto",
+			Tags: bson.M{
+				"habr": bson.M{
+					"author": bson.M{
+						"login":    v.Author.Login,
+						"fullname": v.Author.Fullname,
+					},
+					"article": bson.M{
+						"id":        v.ID,
+						"published": v.TimePublished,
+						"comments":  v.CommentsCount,
+						"title":     v.Title,
+						"preview":   v.PreviewHTML,
+						"reading":   v.ReadingCount,
+					},
+				},
+				"name":  v.Title + " / Хабр",
+				"added": "auto",
 			},
 		}
 		err = db.Articles().InsertOne(&article)
