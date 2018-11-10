@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -26,7 +25,8 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, UserKey, claims.User)
 		}
 		if err != nil {
-			log.Println(err)
+			// Not important
+			// log.Println(err)
 		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

@@ -25,11 +25,10 @@ func (m *Module) process() {
 			continue
 		}
 
-		article := model.Article{
-			ID:    bson.NewObjectId(),
-			URL:   v.FullURL,
-			Added: time.Now(),
-			Tags: bson.M{
+		article := model.NewArticle(
+			v.FullURL,
+			v.Title + " / Хабр",
+			bson.M{
 				"habr": bson.M{
 					"author": bson.M{
 						"login":    v.Author.Login,
@@ -44,10 +43,10 @@ func (m *Module) process() {
 						"reading":   v.ReadingCount,
 					},
 				},
-				"name":  v.Title + " / Хабр",
 				"added": "auto",
 			},
-		}
+		)
+
 		err = db.Articles().InsertOne(&article)
 		if err != nil {
 			log.Println(err)

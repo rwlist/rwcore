@@ -74,7 +74,7 @@ func (u Users) HandleSignUp(r *http.Request, form SignUpForm) (*model.User, erro
 
 	roles := make(model.Roles).AddRole(UserRole)
 
-	count, err := db.Users().Size()
+	count, err := db.Users().Count()
 	if err != nil {
 		return nil, err
 	}

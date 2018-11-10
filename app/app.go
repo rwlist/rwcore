@@ -27,8 +27,14 @@ func CreateApp(conf RootConfig) *App {
 	app := &App{}
 	app.DB, err = db.New(conf.Mongo)
 	if err != nil {
-		log.Fatal("MongoDB", err)
+		log.Fatal("MongoDB:", err)
 	}
+
+	err = app.DB.Init()
+	if err != nil {
+		log.Fatal("Database initialization:", err)
+	}
+
 	app.Auth, err = auth.New(conf.Auth)
 	if err != nil {
 		log.Fatal("Auth", err)

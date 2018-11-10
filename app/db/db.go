@@ -19,20 +19,7 @@ func New(conf Config) (*Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-	provider := &Provider{session, conf.DbName}
-	err = provider.EnsureIndexes()
-	if err != nil {
-		return nil, err
-	}
-	return provider, nil
-}
-
-func (p *Provider) EnsureIndexes() error {
-	err := p.Users().EnsureIndexes()
-	if err != nil {
-		return err
-	}
-	return nil
+	return &Provider{session, conf.DbName}, nil
 }
 
 func (p *Provider) Copy() *Provider {

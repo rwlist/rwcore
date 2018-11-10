@@ -1,13 +1,25 @@
 package db
 
-func (p *Provider) Users() UserStore {
-	return UserStore{p.c("users")}
+import (
+	"github.com/rwlist/rwcore/app/db/store"
+)
+
+func (p *Provider) Users() store.Users {
+	return store.Users{p.c("users")}
 }
 
-func (p *Provider) Articles() ArticleStore {
-	return ArticleStore{p.c("articles")}
+func (p *Provider) Articles() store.Articles {
+	return store.Articles{p.c("articles")}
 }
 
-func (p *Provider) HabrDaily() HabrDailyStore {
-	return HabrDailyStore{p.c("habrDaily")}
+func (p *Provider) HabrDaily() store.HabrDaily {
+	return store.HabrDaily{p.c("habrDaily")}
+}
+
+func (p *Provider) AllCollections() []interface{} {
+	return []interface{}{
+		p.Users(),
+		p.Articles(),
+		p.HabrDaily(),
+	}
 }
