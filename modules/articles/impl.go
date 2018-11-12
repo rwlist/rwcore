@@ -1,7 +1,9 @@
 package articles
 
 import (
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/rwlist/rwcore/app/db"
 	"github.com/rwlist/rwcore/app/model"
@@ -14,20 +16,42 @@ func (i impl) getAll(r *http.Request) ([]model.Article, error) {
 	return db.Articles().GetAll()
 }
 
-// func addOneArticle(r *http.Request, article model.Article) (model.Article, error) {
-// 	db := db.From(r)
-// 	err := db.Articles().InsertOne(&article)
-// 	return article, err
-// }
+func (i impl) onClick(r *http.Request, article model.Article) (*ArticleUpdate, error) {
+	// TODO: queue
+	db := db.From(r)
+	now := time.Now()
 
-// func addManyArticles(r *http.Request, articles []model.Article) ([]model.Article, error) {
-// 	db := db.From(r)
-// 	err := db.Articles().InsertMany(articles)
-// 	return articles, err
-// }
+	article.Status.Clicks++
+	article.Status.LastClick = &now
+	if article.Status.ReadStatus == "unopened" {
+		article.Status.ReadStatus = "viewed"
+		article.Status.ReadStatusChange = &now
+	}
 
-// func patchArticle(r *http.Request, article model.Article) (model.Article, error) {
-// 	db := db.From(r)
-// 	err := db.Articles().UpdateOne(&article)
-// 	return article, err
-// }
+	err := db.Articles().UpdateOne(&article)
+	return asUpdate(article), err
+}
+
+func (i impl) setReadStatus(r *http.Request, article model.Article) (*ArticleUpdate, error) {
+	// TODO: queue
+	db := db.From(r)
+	now := time.Now()
+
+	newStatus := r.URL.Query().Get("newStatus")
+	if !model.ValidArticleReadStatus(newStatus) {
+		return nil, errors.New("invalid read status")
+	}
+
+	article.Status.ReadStatus = newStatus
+	article.Status.ReadStatusChange = &now
+
+	err := db.Articles().UpdateOne(&article)
+	return asUpdate(article), err
+}
+
+func asUpdate(article model.Article) *ArticleUpdate {
+	return &ArticleUpdate{
+		ArticleID: article.ID,
+		Article:   article,
+	}
+}

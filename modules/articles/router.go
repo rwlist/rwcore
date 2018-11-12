@@ -17,6 +17,8 @@ func (m *Module) Router() chi.Router {
 	r.Route("/{id}", func(r chi.Router) {
 		r.Use(fetchArticle)
 		r.Get("/", z.get)
+		r.Post("/click", z.onClick)
+		r.Post("/read/status", z.setReadStatus)
 		// r.Patch("/patch", m.patch)
 	})
 

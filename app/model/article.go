@@ -51,6 +51,10 @@ func EmptyArticleStatus() ArticleStatus {
 	}
 }
 
+func ValidArticleReadStatus(readStatus string) bool {
+	return readStatus == "unopened" || readStatus == "viewed" || readStatus == "completed"
+}
+
 func (a *Article) BumpVersion() (bool, error) {
 	updated := a.Version != articleVersion
 	var err error

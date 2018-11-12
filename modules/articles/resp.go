@@ -26,6 +26,16 @@ func (z resp) getAll(w http.ResponseWriter, r *http.Request) {
 	utils.QuickRespond(w, r, all, err)
 }
 
+func (z resp) onClick(w http.ResponseWriter, r *http.Request) {
+	res, err := z.impl.onClick(r, z.article(r))
+	utils.QuickRespond(w, r, res, err)
+}
+
+func (z resp) setReadStatus(w http.ResponseWriter, r *http.Request) {
+	res, err := z.impl.setReadStatus(r, z.article(r))
+	utils.QuickRespond(w, r, res, err)
+}
+
 // func (m *Module) addOne(w http.ResponseWriter, r *http.Request) {
 // 	var article model.Article
 // 	err := render.Decode(r, &article)
