@@ -41,6 +41,16 @@ func (z resp) changeRating(w http.ResponseWriter, r *http.Request) {
 	utils.QuickRespond(w, r, res, err)
 }
 
+func (z resp) removeTag(w http.ResponseWriter, r *http.Request) {
+	res, err := z.impl.removeTag(r, z.article(r))
+	utils.QuickRespond(w, r, res, err)
+}
+
+func (z resp) addTag(w http.ResponseWriter, r *http.Request) {
+	res, err := z.impl.addTag(r, z.article(r))
+	utils.QuickRespond(w, r, res, err)
+}
+
 // func (m *Module) addOne(w http.ResponseWriter, r *http.Request) {
 // 	var article model.Article
 // 	err := render.Decode(r, &article)

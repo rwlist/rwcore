@@ -20,6 +20,8 @@ func (m *Module) Router() chi.Router {
 		r.Post("/click", z.onClick)
 		r.Post("/read/status", z.setReadStatus)
 		r.Post("/rating/change", z.changeRating)
+		r.Post("/tags/remove", z.removeTag)
+		r.Post("/tags/add", z.addTag)
 		// r.Patch("/patch", m.patch)
 	})
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -23,16 +24,6 @@ type Article struct {
 	Status ArticleStatus          `bson:"status" json:"status"`
 }
 
-type ArticleStatus struct {
-	Clicks    uint       `bson:"clicks" json:"clicks"`
-	LastClick *time.Time `bson:"lastClick" json:"lastClick"`
-
-	ReadStatus       string     `bson:"readStatus" json:"readStatus"` // unopened|viewed|completed
-	ReadStatusChange *time.Time `bson:"readStatusChange" json:"readStatusChange"`
-
-	Rating int `bson:"rating" json:"rating"`
-}
-
 func NewArticle(url, title string, tags map[string]interface{}) Article {
 	return Article{
 		ID:      bson.NewObjectId(),
@@ -45,82 +36,31 @@ func NewArticle(url, title string, tags map[string]interface{}) Article {
 	}
 }
 
-func EmptyArticleStatus() ArticleStatus {
-	return ArticleStatus{
-		ReadStatus: "unopened",
-	}
-}
-
-func ValidArticleReadStatus(readStatus string) bool {
-	return readStatus == "unopened" || readStatus == "viewed" || readStatus == "completed"
-}
-
-func (a *Article) BumpVersion() (bool, error) {
-	updated := a.Version != articleVersion
-	var err error
-
-	for a.Version != articleVersion {
-		switch a.Version {
-		case 0:
-			err = a.upgrade0()
-		default:
-			return false, fmt.Errorf("can't upgrade version %d of Article", a.Version)
-		}
-
-		if err != nil {
-			return false, err
-		}
-	}
-
-	return updated, nil
-}
-
-func (a *Article) upgrade0() error {
-	a.Version = 1
-	now := time.Now()
-
-	clicks, ok := a.Tags["clicks"].(uint)
-	if ok {
-		a.Status.Clicks = clicks
-		a.Status.LastClick = &now
-	}
-	delete(a.Tags, "clicks")
-	delete(a.Tags, "lastClicked")
-
-	name, ok := a.Tags["name"].(string)
-	if ok {
-		a.Title = name
+func (a *Article) AddTag(tag string) error {
+	i := strings.Index(tag, ":")
+	var key, value string
+	if i == -1 {
+		key = tag
+		value = ""
 	} else {
-		a.Title = "Untitled"
+		key = tag[:i]
+		value = tag[i+1:]
 	}
-	delete(a.Tags, "name")
 
-	status, ok := a.Tags["status"].(string)
+	_, ok := a.Tags[key]
 	if ok {
-		switch status {
-		case "IRL":
-			a.Status.ReadStatus = "completed"
-			a.Status.ReadStatusChange = &now
-			a.Status.Rating = 1
-		case "AWSM":
-			a.Status.ReadStatus = "viewed"
-			a.Status.ReadStatusChange = &now
-			a.Status.Rating = 1
-		case "DSMS":
-			a.Status.ReadStatus = "viewed"
-			a.Status.ReadStatusChange = &now
-			a.Status.Rating = 0
-		case "REM":
-			a.Status.ReadStatus = "unopened"
-			a.Status.Rating = -1
-		default:
-			a.Status.ReadStatus = "unopened"
-		}
-	} else {
-		a.Status.ReadStatus = "unopened"
+		return fmt.Errorf("tag %s already exists", key)
 	}
-	delete(a.Tags, "status")
-	delete(a.Tags, "statusChanged")
 
+	a.Tags[key] = value
+	return nil
+}
+
+func (a *Article) RemoveTag(tag string) error {
+	_, ok := a.Tags[tag]
+	if !ok {
+		return fmt.Errorf("tag %s not found", tag)
+	}
+	delete(a.Tags, tag)
 	return nil
 }

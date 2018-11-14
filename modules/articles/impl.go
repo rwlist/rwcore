@@ -56,10 +56,42 @@ func (i impl) changeRating(r *http.Request, article model.Article) (*ArticleUpda
 
 	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
 	if err != nil {
-		return nil, errors.New("invalid delta")
+		return nil, err
 	}
 
 	article.Status.Rating += delta
+
+	err = db.Articles().UpdateOne(&article)
+	return asUpdate(article), err
+}
+
+func (i impl) removeTag(r *http.Request, article model.Article) (*ArticleUpdate, error) {
+	// TODO: queue
+	db := db.From(r)
+	now := time.Now()
+
+	tag := r.URL.Query().Get("tag")
+	err := article.RemoveTag(tag)
+	if err != nil {
+		return nil, err
+	}
+	article.Modified = &now
+
+	err = db.Articles().UpdateOne(&article)
+	return asUpdate(article), err
+}
+
+func (i impl) addTag(r *http.Request, article model.Article) (*ArticleUpdate, error) {
+	// TODO: queue
+	db := db.From(r)
+	now := time.Now()
+
+	tag := r.URL.Query().Get("tag")
+	err := article.AddTag(tag)
+	if err != nil {
+		return nil, err
+	}
+	article.Modified = &now
 
 	err = db.Articles().UpdateOne(&article)
 	return asUpdate(article), err
