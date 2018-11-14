@@ -14,6 +14,7 @@ func (m *Module) Router() chi.Router {
 	// r.Post("/add", m.addOne)
 	// r.Post("/addMany", m.addMany)
 	r.Get("/all", z.getAll)
+	r.Post("/addURL", z.addURL)
 	r.Route("/{id}", func(r chi.Router) {
 		r.Use(fetchArticle)
 		r.Get("/", z.get)

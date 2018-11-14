@@ -21,6 +21,17 @@ func (z resp) get(w http.ResponseWriter, r *http.Request) {
 	render.Respond(w, r, article)
 }
 
+func (z resp) addURL(w http.ResponseWriter, r *http.Request) {
+	var url string
+	err := render.Decode(r, &url)
+	if err != nil {
+		render.Render(w, r, utils.ErrBadRequest.With(err))
+		return
+	}
+	res, err := z.impl.addURL(url, r)
+	utils.QuickRespond(w, r, res, err)
+}
+
 func (z resp) getAll(w http.ResponseWriter, r *http.Request) {
 	all, err := z.impl.getAll(r)
 	utils.QuickRespond(w, r, all, err)

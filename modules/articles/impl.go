@@ -8,6 +8,7 @@ import (
 
 	"github.com/rwlist/rwcore/app/db"
 	"github.com/rwlist/rwcore/app/model"
+	"github.com/rwlist/rwcore/modules/utils"
 )
 
 type impl struct{}
@@ -15,6 +16,30 @@ type impl struct{}
 func (i impl) getAll(r *http.Request) ([]model.Article, error) {
 	db := db.From(r)
 	return db.Articles().GetAll()
+}
+
+func (i impl) addURL(url string, r *http.Request) (*ArticlesActionResp, error) {
+	db := db.From(r)
+
+	resp := &ArticlesActionResp{}
+
+	title, err := utils.ParseTitleByURL(url)
+	if err != nil {
+		resp.Errors = append(resp.Errors, err)
+	}
+
+	if title == "" {
+		title = "Unknown HTML Title"
+	}
+
+	article := model.NewArticle(url, title, map[string]interface{}{
+		"added": "url",
+	})
+	db.Articles().InsertOne(&article)
+
+	resp.AddedArticles = append(resp.AddedArticles, article)
+
+	return resp, nil
 }
 
 func (i impl) onClick(r *http.Request, article model.Article) (*ArticleUpdate, error) {

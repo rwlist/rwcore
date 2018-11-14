@@ -9,3 +9,8 @@ type ArticleUpdate struct {
 	ArticleID bson.ObjectId `json:"id"`
 	Article   model.Article `json:"article"`
 }
+
+type ArticlesActionResp struct {
+	AddedArticles []model.Article `json:"addedArticles"`
+	Errors        []error         `json:"errors"`
+}
