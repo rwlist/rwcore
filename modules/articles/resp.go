@@ -36,6 +36,11 @@ func (z resp) setReadStatus(w http.ResponseWriter, r *http.Request) {
 	utils.QuickRespond(w, r, res, err)
 }
 
+func (z resp) changeRating(w http.ResponseWriter, r *http.Request) {
+	res, err := z.impl.changeRating(r, z.article(r))
+	utils.QuickRespond(w, r, res, err)
+}
+
 // func (m *Module) addOne(w http.ResponseWriter, r *http.Request) {
 // 	var article model.Article
 // 	err := render.Decode(r, &article)

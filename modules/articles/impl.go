@@ -3,6 +3,7 @@ package articles
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/rwlist/rwcore/app/db"
@@ -46,6 +47,21 @@ func (i impl) setReadStatus(r *http.Request, article model.Article) (*ArticleUpd
 	article.Status.ReadStatusChange = &now
 
 	err := db.Articles().UpdateOne(&article)
+	return asUpdate(article), err
+}
+
+func (i impl) changeRating(r *http.Request, article model.Article) (*ArticleUpdate, error) {
+	// TODO: queue
+	db := db.From(r)
+
+	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
+	if err != nil {
+		return nil, errors.New("invalid delta")
+	}
+
+	article.Status.Rating += delta
+
+	err = db.Articles().UpdateOne(&article)
 	return asUpdate(article), err
 }
 
