@@ -34,6 +34,10 @@ func (z resp) addURL(w http.ResponseWriter, r *http.Request) {
 
 func (z resp) getAll(w http.ResponseWriter, r *http.Request) {
 	all, err := z.impl.getAll(r)
+	for i := len(all)/2-1; i >= 0; i-- {
+		opp := len(all)-1-i
+		all[i], all[opp] = all[opp], all[i]
+	}
 	utils.QuickRespond(w, r, all, err)
 }
 
