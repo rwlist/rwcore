@@ -15,3 +15,6 @@
 test-results/
 tmp/
 routes/
+
+# Intellij Idea
+.idea

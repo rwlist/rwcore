@@ -1,4 +1,4 @@
-package utils
+package resp
 
 import (
 	"net/http"

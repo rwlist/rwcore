@@ -23,7 +23,7 @@ func (p *Provider) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-// From accuires db.Provider from request context
+// From acquires db.Provider from request context
 func From(r *http.Request) *Provider {
 	return r.Context().Value(dbKey).(*Provider)
 }

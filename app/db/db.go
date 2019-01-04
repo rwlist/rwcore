@@ -14,7 +14,7 @@ type Provider struct {
 	dbName  string
 }
 
-func New(conf Config) (*Provider, error) {
+func NewProvider(conf Config) (*Provider, error) {
 	session, err := mgo.Dial(conf.Addr)
 	if err != nil {
 		return nil, err

@@ -15,10 +15,10 @@ func (s Service) Router() http.Handler {
 	return r
 }
 
-type AdminMessage struct {
+type Message struct {
 	AdminMessage string
 }
 
 func (s Service) test(w http.ResponseWriter, r *http.Request) {
-	render.JSON(w, r, AdminMessage{"Congrats, you are admin!"})
+	render.JSON(w, r, Message{"Congrats, you are admin!"})
 }

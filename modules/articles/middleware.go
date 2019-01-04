@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/rwlist/rwcore/app/db"
 	"github.com/rwlist/rwcore/app/model"
-	"github.com/rwlist/rwcore/app/utils"
+	"github.com/rwlist/rwcore/app/resp"
 )
 
 type ctxkey string
@@ -26,7 +26,7 @@ func fetchArticle(next http.Handler) http.Handler {
 
 		id := chi.URLParam(r, "id")
 		if !bson.IsObjectIdHex(id) {
-			render.Render(w, r, utils.ErrBadRequest.With(errors.New("invalid bson object id hex")))
+			render.Render(w, r, resp.ErrBadRequest.With(errors.New("invalid bson object id hex")))
 			return
 		}
 		bid := bson.ObjectIdHex(id)
@@ -34,7 +34,7 @@ func fetchArticle(next http.Handler) http.Handler {
 		var article model.Article
 		err := articles.FindId(bid).One(&article)
 		if err != nil {
-			render.Render(w, r, utils.ErrNotFound.With(err))
+			render.Render(w, r, resp.ErrNotFound.With(err))
 			return
 		}
 

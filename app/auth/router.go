@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/rwlist/rwcore/app/utils"
+	"github.com/rwlist/rwcore/app/resp"
 )
 
 type TokenResponse struct {
@@ -34,7 +34,7 @@ func (a *Auth) signup(w http.ResponseWriter, r *http.Request) {
 func (a *Auth) status(w http.ResponseWriter, r *http.Request) {
 	claims, err := a.GetClaims(r)
 	if err != nil {
-		render.Render(w, r, utils.ErrUnathorized.With(err))
+		render.Render(w, r, resp.ErrUnathorized.With(err))
 		return
 	}
 

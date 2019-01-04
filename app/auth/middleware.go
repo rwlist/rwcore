@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/rwlist/rwcore/app/model"
-	"github.com/rwlist/rwcore/app/utils"
+	"github.com/rwlist/rwcore/app/resp"
 )
 
 type key int
@@ -37,7 +37,7 @@ func Authorized(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		_, ok := r.Context().Value(UserKey).(*model.User)
 		if !ok {
-			render.Render(w, r, utils.ErrUnathorized)
+			render.Render(w, r, resp.ErrUnathorized)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -50,12 +50,12 @@ func HasRole(role string) func(http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			user, ok := r.Context().Value(UserKey).(*model.User)
 			if !ok {
-				render.Render(w, r, utils.ErrUnathorized)
+				render.Render(w, r, resp.ErrUnathorized)
 				return
 			}
 			// Check if user has role or admin
 			if !user.Roles.HasRole(role) && !user.Roles.HasRole(AdminRole) {
-				render.Render(w, r, utils.ErrForbidden)
+				render.Render(w, r, resp.ErrForbidden)
 				return
 			}
 			next.ServeHTTP(w, r)

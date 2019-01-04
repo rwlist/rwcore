@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/rwlist/rwcore/conf"
 	"log"
 	"net/http"
 
@@ -17,37 +18,26 @@ type App struct {
 
 	Router   *chi.Mux
 	bindAddr string
-
-	modules []Module
 }
 
-func CreateApp(conf RootConfig) *App {
-	var err error
-
-	app := &App{}
-	app.DB, err = db.New(conf.Mongo)
-	if err != nil {
-		log.Fatal("MongoDB:", err)
+func NewApp(conf conf.Server, db *db.Provider, auth *auth.Auth, adminService *admin.Service) (*App, error) {
+	app := &App{
+		DB:           db,
+		Auth:         auth,
+		AdminService: adminService,
+		bindAddr:     conf.BindAddr,
 	}
-
-	err = app.DB.Init()
-	if err != nil {
-		log.Fatal("Database initialization:", err)
-	}
-
-	app.Auth, err = auth.New(conf.Auth)
-	if err != nil {
-		log.Fatal("Auth", err)
-	}
-	app.AdminService = &admin.Service{}
-
 	app.Router = app.createRouter()
-	app.bindAddr = conf.Server.BindAddr
 
-	return app
+	err := app.DB.Init()
+	if err != nil {
+		return nil, err
+	}
+
+	return app, nil
 }
 
-func (app *App) Start() error {
+func (a *App) Start() error {
 	log.Println("Server started")
-	return http.ListenAndServe(app.bindAddr, app.Router)
+	return http.ListenAndServe(a.bindAddr, a.Router)
 }

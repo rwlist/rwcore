@@ -5,15 +5,15 @@ import (
 )
 
 func (p *Provider) Users() store.Users {
-	return store.Users{p.c("users")}
+	return store.Users{Collection: p.c("users")}
 }
 
 func (p *Provider) Articles() store.Articles {
-	return store.Articles{p.c("articles")}
+	return store.Articles{Collection: p.c("articles")}
 }
 
 func (p *Provider) HabrDaily() store.HabrDaily {
-	return store.HabrDaily{p.c("habrDaily")}
+	return store.HabrDaily{Collection: p.c("habrDaily")}
 }
 
 func (p *Provider) AllCollections() []interface{} {
