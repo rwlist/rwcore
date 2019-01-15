@@ -1,24 +1,28 @@
 package main
 
 import (
-	"github.com/rwlist/rwcore/app/config"
+	"flag"
 	"log"
 
-	"github.com/rwlist/rwcore/app"
 	_ "github.com/rwlist/rwcore/app/resp"
-	"github.com/rwlist/rwcore/modules/articles"
-	"github.com/rwlist/rwcore/modules/habr"
+	"github.com/rwlist/rwcore/srv"
 )
+
+type App struct {
+	Server *srv.Server
+}
 
 func main() {
 	log.SetFlags(log.Lshortfile)
-	conf, err := config.NewConfig("conf/config.json")
+
+	filepath := *flag.String("config", "conf/config.toml", "pass path to config file")
+	flag.Parse()
+
+	b, err := Initialize(filepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Initialization failed.", err)
+		return
 	}
 
-	app := app.CreateApp()
-	app.AddModule(&articles.Module{})
-	app.AddModule(&habr.Module{})
-	app.Start()
+	b.Server.Start()
 }

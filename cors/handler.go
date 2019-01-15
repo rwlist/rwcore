@@ -1,4 +1,4 @@
-package app
+package cors
 
 import (
 	"net/http"
@@ -6,7 +6,9 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func corsHandler() func(http.Handler) http.Handler {
+type Middleware func(http.Handler) http.Handler
+
+func NewMiddleware() Middleware {
 	// Basic CORS
 	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
 	cors := cors.New(cors.Options{

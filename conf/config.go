@@ -1,20 +1,18 @@
 package conf
 
 import (
-	"github.com/micro/go-config"
+	"github.com/google/wire"
+	config "github.com/micro/go-config"
 	"github.com/micro/go-config/source/file"
-	"github.com/rwlist/rwcore/app/auth"
-	"github.com/rwlist/rwcore/app/db"
+	"github.com/rwlist/rwcore/auth"
+	"github.com/rwlist/rwcore/db"
+	"github.com/rwlist/rwcore/srv"
 )
 
 type Config struct {
-	Server Server
+	Server srv.Config
 	Mongo  db.Config
-	Auth   auth.Config
-}
-
-type Server struct {
-	BindAddr string
+	JWT	auth.JWTConfig
 }
 
 func New(filepath string) (Config, error) {
@@ -34,3 +32,22 @@ func New(filepath string) (Config, error) {
 
 	return c, nil
 }
+
+func ProvideSrv(c Config) srv.Config {
+	return c.Server
+}
+
+func ProvideMongo(c Config) db.Config {
+	return c.Mongo
+}
+
+func ProvideJWT(c Config) auth.JWTConfig {
+	return c.JWT
+}
+
+var All = wire.NewSet(
+	New,
+	ProvideSrv,
+	ProvideMongo,
+	ProvideJWT,
+)

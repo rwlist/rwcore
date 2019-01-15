@@ -1,18 +1,25 @@
-package app
+package router
 
 import (
+	"github.com/rwlist/rwcore/cors"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
-func (a *App) createRouter() *chi.Mux {
+type Router *chi.Mux
+
+type Deps struct {
+	CORS cors.Middleware
+}
+
+func New(deps Deps) Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(corsHandler())
+	r.Use(deps.CORS)
 	r.Use(a.Auth.Middleware)
 	r.Use(a.DB.Middleware)
 

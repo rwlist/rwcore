@@ -1,0 +1,14 @@
+[server]
+bindAddr = ":9090"
+
+[mongo]
+addr = "localhost"
+dbName = "rwlist"
+
+[auth.jwt]
+secret = "sample_secret"
+duration = "3000h"
+signingMethod = "HS256"
+
+[auth]
+userKey = "User"

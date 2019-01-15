@@ -1,16 +1,27 @@
-package store
+package users
 
 import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/rwlist/rwcore/app/model"
+	"github.com/rwlist/rwcore/ctx"
+	"net/http"
 )
 
-type Users struct {
+const (
+	CollName = "users"
+)
+
+func DB(r *http.Request) Store {
+	return Store{
+		ctx.DB(r.Context()).C(CollName),
+	}
+}
+
+type Store struct {
 	*mgo.Collection
 }
 
-func (u Users) Init() error {
+func (u Store) Init() error {
 	err1 := u.EnsureIndex(mgo.Index{
 		Key:    []string{"username"},
 		Unique: true,
@@ -28,12 +39,12 @@ func (u Users) Init() error {
 	return nil
 }
 
-func (u Users) FindByUsername(username string) (user *model.User, err error) {
+func (u Store) FindByUsername(username string) (user User, err error) {
 	err = u.Find(bson.M{"username": username}).One(&user)
 	return
 }
 
-func (u Users) InsertOne(user *model.User) (err error) {
+func (u Store) InsertOne(user User) (err error) {
 	err = user.Validate()
 	if err != nil {
 		return
