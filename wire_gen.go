@@ -6,25 +6,60 @@
 package main
 
 import (
+	"github.com/rwlist/rwcore/admin"
+	"github.com/rwlist/rwcore/auth"
 	"github.com/rwlist/rwcore/conf"
+	"github.com/rwlist/rwcore/cors"
+	"github.com/rwlist/rwcore/mod"
+	"github.com/rwlist/rwcore/router"
 	"github.com/rwlist/rwcore/srv"
-)
-
-import (
-	_ "github.com/rwlist/rwcore/app/resp"
 )
 
 // Injectors from wire.go:
 
-func Initialize(filepath string) (Bootstrap, error) {
+func Initialize(filepath string) (App, func(), error) {
 	config, err := conf.New(filepath)
 	if err != nil {
-		return Bootstrap{}, err
+		return App{}, nil, err
 	}
 	srvConfig := conf.ProvideSrv(config)
-	server := srv.New(srvConfig)
-	bootstrap := Bootstrap{
-		Server: server,
+	middleware := cors.NewMiddleware()
+	jwtConfig := conf.ProvideJWT(config)
+	jwt := auth.NewJWT(jwtConfig)
+	authMiddleware := auth.NewMiddleware(jwt)
+	modConfig := conf.ProvideMongo(config)
+	provider, cleanup, err := mod.NewProvider(modConfig)
+	if err != nil {
+		return App{}, nil, err
 	}
-	return bootstrap, nil
+	modMiddleware := mod.NewMiddleware(provider)
+	mid := &router.Mid{
+		CORS: middleware,
+		Auth: authMiddleware,
+		DB:   modMiddleware,
+	}
+	stdClaims, err := auth.NewStdClaims(jwtConfig)
+	if err != nil {
+		cleanup()
+		return App{}, nil, err
+	}
+	authAuth := auth.NewAuth(jwt, stdClaims)
+	controller := auth.NewController(authAuth, jwt, authMiddleware)
+	authRouter := auth.NewRouter(controller)
+	adminController := admin.NewController()
+	adminRouter := admin.NewRouter(adminController, authMiddleware)
+	routes := &router.Routes{
+		Auth:  authRouter,
+		Admin: adminRouter,
+	}
+	routerRouter := router.New(mid, routes)
+	server := srv.New(srvConfig, routerRouter)
+	init := mod.NewInit(provider)
+	app := App{
+		Server: server,
+		DbInit: init,
+	}
+	return app, func() {
+		cleanup()
+	}, nil
 }

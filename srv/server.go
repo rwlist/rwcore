@@ -1,6 +1,7 @@
 package srv
 
 import (
+	"github.com/google/wire"
 	"log"
 	"net/http"
 
@@ -16,13 +17,9 @@ type Config struct {
 	BindAddr string
 }
 
-type Deps struct {
-	Router router.Router
-}
-
-func New(c Config, deps Deps) *Server {
+func New(c Config, r router.Router) *Server {
 	srv := &Server{
-		Router:   deps.Router,
+		Router:   r,
 		BindAddr: c.BindAddr,
 	}
 
@@ -36,3 +33,7 @@ func (s *Server) Start() {
 		log.Println("Server exited.", err)
 	}
 }
+
+var All = wire.NewSet(
+	New,
+)

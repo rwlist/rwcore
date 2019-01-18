@@ -5,14 +5,14 @@ import (
 	config "github.com/micro/go-config"
 	"github.com/micro/go-config/source/file"
 	"github.com/rwlist/rwcore/auth"
-	"github.com/rwlist/rwcore/db"
+	"github.com/rwlist/rwcore/mod"
 	"github.com/rwlist/rwcore/srv"
 )
 
 type Config struct {
 	Server srv.Config
-	Mongo  db.Config
-	JWT	auth.JWTConfig
+	Mongo  mod.Config
+	JWT    auth.JWTConfig
 }
 
 func New(filepath string) (Config, error) {
@@ -37,7 +37,7 @@ func ProvideSrv(c Config) srv.Config {
 	return c.Server
 }
 
-func ProvideMongo(c Config) db.Config {
+func ProvideMongo(c Config) mod.Config {
 	return c.Mongo
 }
 

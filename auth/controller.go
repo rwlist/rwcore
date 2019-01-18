@@ -2,7 +2,7 @@ package auth
 
 import (
 	"encoding/json"
-	"github.com/rwlist/rwcore/db/users"
+	"github.com/rwlist/rwcore/users"
 	"github.com/rwlist/rwcore/resp"
 	"net/http"
 
@@ -93,8 +93,8 @@ func (c *Controller) signup(w http.ResponseWriter, r *http.Request) {
 func (c *Controller) status(w http.ResponseWriter, r *http.Request) {
 	claims := c.middleware.ParseClaims(r)
 
-	if claims != nil {
-		render.Render(w, r, resp.ErrUnathorized)
+	if claims == nil {
+		render.Render(w, r, resp.ErrUnauthorized)
 		return
 	}
 

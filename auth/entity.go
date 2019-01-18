@@ -3,7 +3,7 @@ package auth
 import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/google/wire"
-	"github.com/rwlist/rwcore/db/users"
+	"github.com/rwlist/rwcore/users"
 )
 
 type JWTConfig struct {

@@ -10,7 +10,7 @@ type StdClaims struct {
 	duration time.Duration
 }
 
-func NewStdClaims(c *JWTConfig) (*StdClaims, error) {
+func NewStdClaims(c JWTConfig) (*StdClaims, error) {
 	duration, err := time.ParseDuration(c.Duration)
 	if err != nil {
 		return nil, err

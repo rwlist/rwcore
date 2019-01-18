@@ -16,7 +16,7 @@ type JWT struct{
 	signingMethod jwt.SigningMethod
 }
 
-func NewJWT(c *JWTConfig) *JWT {
+func NewJWT(c JWTConfig) *JWT {
 	return &JWT{
 		secret: []byte(c.Secret),
 		signingMethod: jwt.GetSigningMethod(c.SigningMethod),

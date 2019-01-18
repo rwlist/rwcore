@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"github.com/rwlist/rwcore/modules/habr/models"
+	"github.com/rwlist/rwcore/habr/models"
 )
 
 type HabrDailyArticle struct {

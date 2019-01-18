@@ -8,10 +8,10 @@ import (
 
 type Controller struct{}
 
-func (s Controller) test(w http.ResponseWriter, r *http.Request) {
-	render.JSON(w, r, Message{"Congrats, you are admin!"})
+func NewController() *Controller {
+	return &Controller{}
 }
 
-func NewController() Controller {
-	return Controller{}
+func (s *Controller) test(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, Message{"Congrats, you are admin!"})
 }

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/globalsign/mgo/bson"
-	"github.com/rwlist/rwcore/db/users"
+	"github.com/rwlist/rwcore/users"
 	"golang.org/x/crypto/bcrypt"
 )
 

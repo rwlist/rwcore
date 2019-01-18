@@ -3,7 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
-	"github.com/rwlist/rwcore/db/users"
+	"github.com/rwlist/rwcore/cxt"
+	"github.com/rwlist/rwcore/users"
 	"log"
 	"net/http"
 	"strings"
@@ -11,13 +12,6 @@ import (
 	"github.com/go-chi/render"
 	"github.com/rwlist/rwcore/model"
 	"github.com/rwlist/rwcore/resp"
-)
-
-type contextKey int
-
-const (
-	UserKey contextKey = iota
-	ClaimsKey
 )
 
 const (
@@ -70,8 +64,8 @@ func (m *Middleware) UpdateContext(next http.Handler) http.Handler {
 
 		claims := m.ParseClaims(r)
 		if claims != nil {
-			ctx = context.WithValue(ctx, ClaimsKey, claims)
-			ctx = context.WithValue(ctx, UserKey, claims.User)
+			ctx = context.WithValue(ctx, cxt.ClaimsKey, claims)
+			ctx = context.WithValue(ctx, cxt.UserKey, claims.User)
 		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -82,9 +76,9 @@ func (m *Middleware) UpdateContext(next http.Handler) http.Handler {
 
 func (m *Middleware) Authorized(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		_, ok := r.Context().Value(UserKey).(*model.User)
+		_, ok := r.Context().Value(cxt.UserKey).(*model.User)
 		if !ok {
-			render.Render(w, r, resp.ErrUnathorized)
+			render.Render(w, r, resp.ErrUnauthorized)
 			return
 		}
 
@@ -97,9 +91,9 @@ func (m *Middleware) Authorized(next http.Handler) http.Handler {
 func (m *Middleware) HasRole(role string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			user, ok := r.Context().Value(UserKey).(*model.User)
+			user, ok := r.Context().Value(cxt.UserKey).(*model.User)
 			if !ok {
-				render.Render(w, r, resp.ErrUnathorized)
+				render.Render(w, r, resp.ErrUnauthorized)
 				return
 			}
 

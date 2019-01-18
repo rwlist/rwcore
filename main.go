@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
+	"github.com/rwlist/rwcore/mod"
 	"log"
 
-	_ "github.com/rwlist/rwcore/app/resp"
 	"github.com/rwlist/rwcore/srv"
 )
 
 type App struct {
 	Server *srv.Server
+	DbInit *mod.Init
 }
 
 func main() {
@@ -18,11 +19,18 @@ func main() {
 	filepath := *flag.String("config", "conf/config.toml", "pass path to config file")
 	flag.Parse()
 
-	b, err := Initialize(filepath)
+	app, cleanup, err := Initialize(filepath)
+	defer cleanup()
 	if err != nil {
 		log.Println("Initialization failed.", err)
 		return
 	}
 
-	b.Server.Start()
+
+	err = app.DbInit.Do()
+	if err != nil {
+		log.Println("DB init failed.", err)
+		return
+	}
+	app.Server.Start()
 }

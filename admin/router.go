@@ -5,11 +5,11 @@ import (
 	"github.com/rwlist/rwcore/auth"
 )
 
-type Router *chi.Mux
+type Router struct{ *chi.Mux }
 
-func NewRouter(c Controller) Router {
+func NewRouter(c *Controller, middleware *auth.Middleware) Router {
 	r := chi.NewRouter()
-	r.Use(auth.HasRole("admin"))
+	r.Use(middleware.HasRole("admin"))
 	r.Get("/test", c.test)
-	return r
+	return Router{r}
 }

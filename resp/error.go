@@ -45,7 +45,7 @@ func ErrByCode(code int) ErrResponse {
 
 var (
 	ErrNotFound       = ErrByCode(http.StatusNotFound)
-	ErrUnathorized    = ErrByCode(http.StatusUnauthorized)
+	ErrUnauthorized   = ErrByCode(http.StatusUnauthorized)
 	ErrBadRequest     = ErrByCode(http.StatusBadRequest)
 	ErrForbidden      = ErrByCode(http.StatusForbidden)
 	ErrInternal       = ErrByCode(http.StatusInternalServerError)
