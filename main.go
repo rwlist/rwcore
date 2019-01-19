@@ -1,34 +1,38 @@
 package main
 
 import (
+	"flag"
+	"github.com/rwlist/rwcore/habr"
+	"github.com/rwlist/rwcore/mod/dbinit"
 	"log"
 
-	config "github.com/micro/go-config"
-	"github.com/micro/go-config/source/file"
-	"github.com/rwlist/rwcore/app"
-	_ "github.com/rwlist/rwcore/app/utils"
-	"github.com/rwlist/rwcore/modules/articles"
-	"github.com/rwlist/rwcore/modules/habr"
+	"github.com/rwlist/rwcore/srv"
 )
+
+type App struct {
+	Server *srv.Server
+	DbInit *dbinit.Once
+	Habr   *habr.Service
+}
 
 func main() {
 	log.SetFlags(log.Lshortfile)
-	conf := config.NewConfig()
-	err := conf.Load(file.NewSource(
-		file.WithPath("conf/config.json"),
-	))
+
+	filepath := *flag.String("config", "conf/config.toml", "pass path to config file")
+	flag.Parse()
+
+	app, cleanup, err := Initialize(filepath)
+	defer cleanup()
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Initialization failed.", err)
+		return
 	}
 
-	var root app.RootConfig
-	err = conf.Scan(&root)
+	err = app.DbInit.Do()
 	if err != nil {
-		log.Fatal(err)
+		log.Println("DB init failed.", err)
+		return
 	}
-
-	app := app.CreateApp(root)
-	app.AddModule(&articles.Module{})
-	app.AddModule(&habr.Module{})
-	app.Start()
+	go app.Habr.Process()
+	app.Server.Start()
 }
