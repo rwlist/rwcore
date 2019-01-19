@@ -1,6 +1,7 @@
 package cors
 
 import (
+	"github.com/google/wire"
 	"net/http"
 
 	"github.com/go-chi/cors"
@@ -23,3 +24,5 @@ func NewMiddleware() Middleware {
 	})
 	return cors.Handler
 }
+
+var All = wire.NewSet(NewMiddleware)

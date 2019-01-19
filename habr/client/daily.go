@@ -1,10 +1,9 @@
 package client
 
 import (
+	"github.com/rwlist/rwcore/habr/mhabr"
 	"log"
 	"time"
-
-	"github.com/rwlist/rwcore/hab"
 )
 
 var (
@@ -13,21 +12,21 @@ var (
 
 type ReaderDailyTop struct {
 	client Client
-	posts  chan models.ArticleDaily
+	posts  chan mhabr.ArticleDaily
 	exit   chan struct{}
 }
 
-func NewReaderDailyTop() *ReaderDailyTop {
+func NewReaderDailyTop(client Client) *ReaderDailyTop {
 	reader := &ReaderDailyTop{
-		client: NewClient(),
-		posts:  make(chan models.ArticleDaily),
+		client: client,
+		posts:  make(chan mhabr.ArticleDaily),
 		exit:   make(chan struct{}),
 	}
 	go reader.run()
 	return reader
 }
 
-func (r *ReaderDailyTop) Read() <-chan models.ArticleDaily {
+func (r *ReaderDailyTop) Read() <-chan mhabr.ArticleDaily {
 	return r.posts
 }
 
@@ -39,7 +38,7 @@ func (r *ReaderDailyTop) run() {
 	log.Println("Daily reader started")
 	defer close(r.posts)
 	for {
-		log.Println("Read all daily articles")
+		log.Println("Read all daily article")
 		r.readAll(r.posts)
 		select {
 		case <-r.exit:
@@ -50,16 +49,16 @@ func (r *ReaderDailyTop) run() {
 	}
 }
 
-func (r *ReaderDailyTop) readAll(ch chan<- models.ArticleDaily) {
+func (r *ReaderDailyTop) readAll(ch chan<- mhabr.ArticleDaily) {
 	maxPage := 100
 	for page := 1; page <= maxPage; page++ {
 		result, err := r.client.FetchPageDaily(page)
 		if err != nil {
-			log.Println("Error while fetching articles.", err)
+			log.Println("Error while fetching article.", err)
 			break
 		}
 		if !result.Success {
-			log.Println("No success in fetching articles.", result)
+			log.Println("No success in fetching article.", result)
 		}
 		for _, v := range result.Data.Articles {
 			ch <- v

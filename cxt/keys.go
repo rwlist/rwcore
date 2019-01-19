@@ -8,4 +8,6 @@ const (
 
 	DbKey
 	MgoKey
+
+	ArticleKey
 )

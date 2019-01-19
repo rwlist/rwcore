@@ -1,21 +1,17 @@
 package habr
 
 import (
+	"github.com/rwlist/rwcore/article"
+	"github.com/rwlist/rwcore/habr/mhabr"
 	"log"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"github.com/rwlist/rwcore/app/model"
 )
 
-func (m *Module) process() {
-	db := m.app.DB.Copy()
-	defer db.Close()
-
-	store := db.HabrDaily()
-
+func (m *Service) Process() {
 	for v := range m.reader.Read() {
-		n, err := store.CountByArticleID(v.ID)
+		n, err := m.habrDB.CountByArticleID(v.ID)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -25,16 +21,16 @@ func (m *Module) process() {
 			continue
 		}
 
-		article := model.NewArticle(
+		a := article.NewArticle(
 			v.FullURL,
-			v.Title + " / Хабр",
+			v.Title+" / Хабр",
 			bson.M{
 				"habr": bson.M{
 					"author": bson.M{
 						"login":    v.Author.Login,
 						"fullname": v.Author.Fullname,
 					},
-					"article": bson.M{
+					"a": bson.M{
 						"id":        v.ID,
 						"published": v.TimePublished,
 						"comments":  v.CommentsCount,
@@ -47,18 +43,20 @@ func (m *Module) process() {
 			},
 		)
 
-		err = db.Articles().InsertOne(&article)
+		err = m.articleDB.InsertOne(&a)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		_, err = store.InsertOne(model.HabrDailyArticle{
-			ID:        bson.NewObjectId(),
-			Article:   v,
-			ArticleID: v.ID,
-			Added:     time.Now(),
-		})
+		_, err = m.habrDB.InsertOne(
+			mhabr.ModelDaily{
+				ID:        bson.NewObjectId(),
+				Article:   v,
+				ArticleID: v.ID,
+				Added:     time.Now(),
+			},
+		)
 		if err != nil {
 			log.Println(err)
 			continue

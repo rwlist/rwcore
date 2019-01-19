@@ -1,28 +1,27 @@
-package articles
+package article
 
 import (
 	"context"
 	"errors"
+	"github.com/rwlist/rwcore/cxt"
+	"github.com/rwlist/rwcore/resp"
 	"net/http"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/rwlist/rwcore/app/db"
-	"github.com/rwlist/rwcore/app/model"
-	"github.com/rwlist/rwcore/app/resp"
 )
 
-type ctxkey string
+type Middleware struct{}
 
-var (
-	articleKey ctxkey = "article"
-)
+func NewMiddleware() *Middleware {
+	return &Middleware{}
+}
 
-func fetchArticle(next http.Handler) http.Handler {
+func (m *Middleware) UpdateContext(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		articles := db.From(r).Articles()
+		articles := DB(r)
 
 		id := chi.URLParam(r, "id")
 		if !bson.IsObjectIdHex(id) {
@@ -31,14 +30,14 @@ func fetchArticle(next http.Handler) http.Handler {
 		}
 		bid := bson.ObjectIdHex(id)
 
-		var article model.Article
+		var article Article
 		err := articles.FindId(bid).One(&article)
 		if err != nil {
 			render.Render(w, r, resp.ErrNotFound.With(err))
 			return
 		}
 
-		ctx = context.WithValue(ctx, articleKey, article)
+		ctx = context.WithValue(ctx, cxt.ArticleKey, article)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 	return http.HandlerFunc(fn)

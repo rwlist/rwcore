@@ -7,10 +7,14 @@ package main
 
 import (
 	"github.com/rwlist/rwcore/admin"
+	"github.com/rwlist/rwcore/article"
 	"github.com/rwlist/rwcore/auth"
 	"github.com/rwlist/rwcore/conf"
 	"github.com/rwlist/rwcore/cors"
+	"github.com/rwlist/rwcore/habr"
+	"github.com/rwlist/rwcore/habr/client"
 	"github.com/rwlist/rwcore/mod"
+	"github.com/rwlist/rwcore/mod/dbinit"
 	"github.com/rwlist/rwcore/router"
 	"github.com/rwlist/rwcore/srv"
 )
@@ -48,18 +52,28 @@ func Initialize(filepath string) (App, func(), error) {
 	authRouter := auth.NewRouter(controller)
 	adminController := admin.NewController()
 	adminRouter := admin.NewRouter(adminController, authMiddleware)
+	service := article.NewService()
+	articleController := article.NewController(service)
+	articleMiddleware := article.NewMiddleware()
+	articleRouter := article.NewRouter(articleController, authMiddleware, articleMiddleware)
 	routes := &router.Routes{
-		Auth:  authRouter,
-		Admin: adminRouter,
+		Auth:     authRouter,
+		Admin:    adminRouter,
+		Articles: articleRouter,
 	}
 	routerRouter := router.New(mid, routes)
 	server := srv.New(srvConfig, routerRouter)
-	init := mod.NewInit(provider)
+	once := dbinit.NewOnce(provider)
+	clientClient := client.NewClient()
+	readerDailyTop := client.NewReaderDailyTop(clientClient)
+	habrService, cleanup2 := habr.NewService(readerDailyTop, provider)
 	app := App{
 		Server: server,
-		DbInit: init,
+		DbInit: once,
+		Habr:   habrService,
 	}
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

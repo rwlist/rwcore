@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/google/wire"
 	"github.com/rwlist/rwcore/admin"
+	"github.com/rwlist/rwcore/article"
 	"github.com/rwlist/rwcore/auth"
 	"github.com/rwlist/rwcore/cors"
 	"github.com/rwlist/rwcore/mod"
@@ -19,8 +20,9 @@ type Mid struct {
 }
 
 type Routes struct {
-	Auth  auth.Router
-	Admin admin.Router
+	Auth     auth.Router
+	Admin    admin.Router
+	Articles article.Router
 }
 
 func New(mid *Mid, rt *Routes) Router {
@@ -36,6 +38,7 @@ func New(mid *Mid, rt *Routes) Router {
 
 	r.Mount("/auth", rt.Auth)
 	r.Mount("/admin", rt.Admin)
+	r.Mount("/articles", rt.Articles)
 
 	return Router{r}
 }

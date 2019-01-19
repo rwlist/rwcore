@@ -23,7 +23,7 @@ func NewProvider(conf Config) (*Provider, func(), error) {
 
 	return &Provider{
 		session: session,
-		dbName: conf.DbName,
+		dbName:  conf.DbName,
 	}, session.Close, nil
 }
 
@@ -36,6 +36,5 @@ func (p *Provider) Copy() (*mgo.Session, *mgo.Database, func()) {
 
 var All = wire.NewSet(
 	NewProvider,
-	NewInit,
 	NewMiddleware,
 )

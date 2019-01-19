@@ -2,14 +2,13 @@ package client
 
 import (
 	"encoding/json"
+	"github.com/rwlist/rwcore/habr/mhabr"
 	"io/ioutil"
 	"log"
 	"net/http"
 	URL "net/url"
 	"strconv"
 	"time"
-
-	"github.com/rwlist/rwcore/hab"
 )
 
 type Client struct {
@@ -43,16 +42,19 @@ func (c Client) Get(url string, args URL.Values) ([]byte, error) {
 	return c.executeRequest(req)
 }
 
-func (c Client) FetchPageDaily(page int) (*models.PageDaily, error) {
+func (c Client) FetchPageDaily(page int) (*mhabr.PageDaily, error) {
 	values := make(URL.Values)
 	values.Add("date", "day")
 	values.Add("sort", "date")
 	values.Add("page", strconv.Itoa(page))
+	values.Add("fl", "ru")
+	values.Add("hl", "ru")
+	values.Add("habr_i18n", "1")
 	b, err := c.Get("articles/", values)
 	if err != nil {
 		return nil, err
 	}
-	var result models.PageDaily
+	var result mhabr.PageDaily
 	err = json.Unmarshal(b, &result)
 	if err != nil {
 		return nil, err

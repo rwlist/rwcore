@@ -1,4 +1,4 @@
-package models
+package mhabr
 
 import "time"
 
@@ -101,7 +101,7 @@ type ArticleDaily struct {
 
 type PageDaily struct {
 	Data struct {
-		Articles []ArticleDaily `json:"articles"`
+		Articles []ArticleDaily `json:"article"`
 		Pages    int            `json:"pages"`
 	} `json:"data"`
 	Success bool `json:"success"`

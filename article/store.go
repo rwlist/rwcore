@@ -1,18 +1,31 @@
-package store
+package article
 
 import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/rwlist/rwcore/app/model"
+	"github.com/rwlist/rwcore/cxt"
+	"net/http"
 )
 
-type Articles struct {
+const (
+	CollName = "article"
+)
+
+func S(db *mgo.Database) Store {
+	return Store{db.C(CollName)}
+}
+
+func DB(r *http.Request) Store {
+	return S(cxt.DB(r.Context()))
+}
+
+type Store struct {
 	*mgo.Collection
 }
 
-func (s Articles) Init() error {
+func (s Store) Init() error {
 	iter := s.Find(bson.M{}).Iter()
-	var article model.Article
+	var article Article
 	for iter.Next(&article) {
 		ok, err := article.BumpVersion()
 		if err != nil {
@@ -30,18 +43,18 @@ func (s Articles) Init() error {
 	return iter.Close()
 }
 
-func (s Articles) GetAll() ([]model.Article, error) {
-	var articles []model.Article
+func (s Store) GetAll() ([]Article, error) {
+	var articles []Article
 	err := s.Find(bson.M{}).All(&articles)
 	return articles, err
 }
 
-func (s Articles) InsertOne(article *model.Article) (err error) {
+func (s Store) InsertOne(article *Article) (err error) {
 	err = s.Insert(article)
 	return
 }
 
-func (s Articles) InsertMany(articles []model.Article) (err error) {
+func (s Store) InsertMany(articles []Article) (err error) {
 	iSlice := make([]interface{}, len(articles))
 	for k, v := range articles {
 		iSlice[k] = v
@@ -50,6 +63,6 @@ func (s Articles) InsertMany(articles []model.Article) (err error) {
 	return
 }
 
-func (s Articles) UpdateOne(article *model.Article) (err error) {
+func (s Store) UpdateOne(article *Article) (err error) {
 	return s.UpdateId(article.ID, article)
 }

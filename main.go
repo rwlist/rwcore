@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/rwlist/rwcore/mod"
+	"github.com/rwlist/rwcore/habr"
+	"github.com/rwlist/rwcore/mod/dbinit"
 	"log"
 
 	"github.com/rwlist/rwcore/srv"
@@ -10,7 +11,8 @@ import (
 
 type App struct {
 	Server *srv.Server
-	DbInit *mod.Init
+	DbInit *dbinit.Once
+	Habr   *habr.Service
 }
 
 func main() {
@@ -26,11 +28,11 @@ func main() {
 		return
 	}
 
-
 	err = app.DbInit.Do()
 	if err != nil {
 		log.Println("DB init failed.", err)
 		return
 	}
+	go app.Habr.Process()
 	app.Server.Start()
 }

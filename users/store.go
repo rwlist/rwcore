@@ -11,10 +11,12 @@ const (
 	CollName = "users"
 )
 
+func S(db *mgo.Database) Store {
+	return Store{db.C(CollName)}
+}
+
 func DB(r *http.Request) Store {
-	return Store{
-		cxt.DB(r.Context()).C(CollName),
-	}
+	return S(cxt.DB(r.Context()))
 }
 
 type Store struct {
