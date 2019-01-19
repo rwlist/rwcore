@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	CollName = "article"
+	CollName = "articles"
 )
 
 func S(db *mgo.Database) Store {

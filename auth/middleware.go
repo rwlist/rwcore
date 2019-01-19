@@ -63,8 +63,8 @@ func (m *Middleware) UpdateContext(next http.Handler) http.Handler {
 
 		claims := m.ParseClaims(r)
 		if claims != nil {
-			ctx = context.WithValue(ctx, cxt.ClaimsKey, claims)
-			ctx = context.WithValue(ctx, cxt.UserKey, claims.User)
+			ctx = context.WithValue(ctx, cxt.ClaimsKey, &claims)
+			ctx = context.WithValue(ctx, cxt.UserKey, &claims.User)
 		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))

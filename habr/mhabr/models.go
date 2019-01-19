@@ -73,12 +73,12 @@ type ArticleDaily struct {
 	Score           string      `json:"score"`
 	VotesCount      string      `json:"votes_count"`
 	FavoritesCount  string      `json:"favorites_count"`
+	Lang            string      `json:"lang"`
 	TagsString      string      `json:"tags_string"`
 	Title           string      `json:"title"`
 	PreviewHTML     string      `json:"preview_html"`
 	TextCut         string      `json:"text_cut"`
 	IsCommentsHide  string      `json:"is_comments_hide"`
-	IsRecoveryMode  bool        `json:"is_recovery_mode"`
 	Flows           []Flow      `json:"flows"`
 	Hubs            []Hub       `json:"hubs"`
 	ReadingCount    int         `json:"reading_count"`
@@ -87,8 +87,6 @@ type ArticleDaily struct {
 	Author          Author      `json:"author"`
 	HasPolls        bool        `json:"has_polls"`
 	URL             string      `json:"url"`
-	SourceAuthor    string      `json:"source_author,omitempty"`
-	SourceLink      string      `json:"source_link,omitempty"`
 	PostType        string      `json:"post_type"`
 	PostTypeStr     string      `json:"post_type_str"`
 	Vote            interface{} `json:"vote"`
@@ -96,12 +94,15 @@ type ArticleDaily struct {
 	IsHabred        bool        `json:"is_habred"`
 	IsInteresting   bool        `json:"is_interesting"`
 	IsFavorite      bool        `json:"is_favorite"`
-	CommentsNew     int         `json:"comments_new"`
+	IsRecoveryMode  bool        `json:"is_recovery_mode"`
+	CommentsNew     interface{} `json:"comments_new"`
+	SourceAuthor    string      `json:"source_author,omitempty"`
+	SourceLink      string      `json:"source_link,omitempty"`
 }
 
 type PageDaily struct {
 	Data struct {
-		Articles []ArticleDaily `json:"article"`
+		Articles []ArticleDaily `json:"articles"`
 		Pages    int            `json:"pages"`
 	} `json:"data"`
 	Success bool `json:"success"`
